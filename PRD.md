@@ -107,12 +107,14 @@ Create 目前仅支持 Minecraft 1.20+ / 1.21+，其代码深度绑定现代 For
 
 ### 模块实施顺序
 
-- Phase 0：项目搭建 — GTNH ExampleMod 模板 + Shim 层基础数据结构
-- Phase 1：注册系统 — 方块、物品、TileEntity、创造模式标签页
-- Phase 2：动力网络引擎 — BFS 传播算法、动力源、齿轮/传动杆/转轴
-- Phase 3：基础机械 — 粉碎机、动力钻、鼓风机、传送带
-- Phase 4：流体系统 — 动力泵、管道、储罐
-- Phase 5：附魔系统 — 附魔台、超平坦附魔
+- Phase 0：项目搭建 — GTNH ExampleMod 模板 + Shim 层基础数据结构 + JUnit 冒烟测试（shim 类型基本运算）
+- Phase 1：注册系统 — 方块、物品、TileEntity、创造模式标签页、自定义 IPacket 抽象层
+- Phase 2：动力网络引擎 — BFS 传播算法、ChunkEvent 处理、动力源、齿轮/传动杆/转轴、JUnit 单元测试
+- Phase 3a：简单机械 — 粉碎机、动力钻、鼓风机、ProcessingRecipeRegistry
+- Phase 3b：传送带 — 多段传送带、物品实体运输、隧穿/漏斗交互、坡道段
+- Phase 3c：机械臂 — 库存目标选择、状态机、姿态动画
+- Phase 4：流体系统 — 完整流体能力层、动力泵、管道、储罐
+- Phase 5：附魔系统 — 自定义附魔台方块/容器/GUI、液体经验、超平坦附魔
 - Phase 6：附属扩展 — Create: Big Cannons、Create: Aeronautics（独立项目，后期）
 
 ### Ponder 系统
@@ -130,6 +132,7 @@ Create 目前仅支持 Minecraft 1.20+ / 1.21+，其代码深度绑定现代 For
 
 ### 单元测试范围
 
+- **Phase 0 — Shim 层冒烟测试 (JUnit)**：验证 `MyBlockPos.offset()` 坐标偏移、`MyVec3.normalize()` 单位向量计算、`MyDirection.rotate()` 方向旋转等基本运算正确，shim 编译通过且不抛出异常
 - **动力网络 BFS 算法**：给定一组模拟坐标和连接关系，验证网络重建结果的正确性（覆盖所有节点被访问、跨 Chunk 遍历、孤立子网络、环形拓扑）
 - **应力计算**：给定模拟网络配置，验证总应力容量/消耗计算正确，过载检测阈值准确
 - **转速转换**：给定齿轮比配置，验证转速缩放计算正确（大齿轮→小齿轮加速，小齿轮→大齿轮减速）
@@ -157,3 +160,101 @@ Create 目前仅支持 Minecraft 1.20+ / 1.21+，其代码深度绑定现代 For
 - 未来可能考虑与 GTNH 整合包或 TLM 模组的合作/集成
 - 所有内部包结构保持清晰分层，API 边界预留，以便未来开放给附属模组开发者
 - 项目将从 GTNH ExampleMod 1.7.10 模板初始化，该模板已预置 UniMixins、lwjgl3ify、ForgeGradle 5.x 和 CI 配置
+- `.gitignore` 已补充：`.kotlin/`（Kotlin 构建缓存）、`logs/`（Minecraft 运行日志目录）、`*.tmp`/`*.bak`/`*.swp`（编辑器临时文件）、`tmp/`/`bin/`（构建输出）、`local.properties`（Gradle 本地配置）、`*.launch`（Eclipse 启动配置）
+
+## Design Refinements (2026-07-06 Grilling)
+
+以下决策通过与上述 Implementation Decisions 交叉审查，细化或补充了原有设计。
+
+### 参考源码版本
+
+- **固定参考 Create 6.0.8 for 1.20.1**。6.0.8 拥有成熟 API、多年 Bug 修复积累、社区活跃维护。虽然后期版本包含铁路/蒸汽引擎等超出范围的系统，但这些系统仅作算法参考，无需移植。
+- 参考方式：以算法逻辑为参考重写，非逐行代码复制。
+
+### Shim 层范围
+
+- **仅封装轻量数据类型**：`MyBlockPos`、`MyVec3`、`MyDirection`、`MyMathHelper`——这些类型在 1.20.1 和 1.7.10 中结构功能基本相同但方法略有不同。
+- **不进 Shim**：TileEntity、World、网络、GUI/Container 等复杂 Minecraft 系统全部手写 1.7.10 原生代码。Create 特有的复杂数据结构（动力网络节点、处理配方等）直接在 1.7.10 上设计，不做封装。
+- 理由：窄 Shim 投入低、收益高；宽 Shim 会变成 1.20.1 API 模拟器，维护负担不可持续。
+
+### 动力网络——区块加载/卸载
+
+- 在 Phase 2 中订阅 `ChunkEvent.Load` 和 `ChunkEvent.Unload`。
+- **卸载时**：将网络标记为"脏"（dirty），不拆分，等待重新验证。
+- **加载时**：对处于区块边界的 TileEntity 触发网络重建。
+- 不存在跨区块网络的静默分裂或重新连接问题。
+
+### 渲染——ISBRH/TESR 双路径
+
+- **默认路径 ISBRH**：所有动力方块默认使用 ISBRH 渲染静态模型。
+- **动态 TESR 路径**：仅当 TileEntity `speed != 0` 时激活 TESR 动态旋转渲染。TESR 检查 `speed == 0` 立即返回（零开销）。
+- 避免了"此方块是或不是 TESR 方块"的二元分类问题，装饰性静态齿轮不消耗 TESR 性能。
+- 在 1.7.10 中，方块可以同时拥有 ISBRH 渲染类型和 TESR——它们是不同的 Forge API。
+
+### 注册与 ID 管理——枚举化注册
+
+- 采用 **GTNH 标准模式**：每个方块/物品分配命名常量，使用显式枚举（enum）或类似 GT5U `ItemList` 的静态常量类。
+- 新方块/物品始终**追加到末尾**，绝不插入中间，避免 ID 漂移导致旧存档损坏。
+- 枚举的 ordinal 或常量索引即为模组 ID 范围内的偏移量。
+- ID 稳定性在 code review 中可直接验证。
+
+### NBT 持久化——面连接状态
+
+- **持久化到 NBT**：连接面状态（6 个 `ForgeDirection` 布尔值），在 Chunk 加载时通过 `validate()` 或首 tick 恢复网络拓扑。
+- **transient（不序列化）**：speed、stressCapacity、stressImpact、networkID——由网络重建时填充。
+- 服务器重启后根据存储的面连接信息重建整个网络，不丢失拓扑结构。
+
+### 网络同步——分阶段实现
+
+- **初期（Phase 2）**：使用方案 A——通过 `getDescriptionPacket()` / `onDataPacket()` 对每个 TileEntity 独立同步。每当网络速度变化时，向每个受影响 TE 发送同步数据包。
+- **后期优化**：如性能不足，重构为方案 B——每个动力网络发一个数据包（"networkID X: speed=64 RPM, stress ratio=0.7"），客户端 TE 从 NetworkManager 查询本网络值。
+- 理由：1.7.10 多人服务器通常 2-10 人，200 个数据包的网络形成峰值是一次性的；稳态变化（增加水车）仅影响少量方块。如瓶颈出现，方案 B 的修改是局部重构。
+
+### 配方系统——独立注册表
+
+- 不使用原版 `CraftingManager`。构建独立的 `ProcessingRecipeRegistry`，按机器类型（粉碎机、鼓风机、压印机、混合器）分类注册。
+- `ProcessingRecipe` 存储：速度要求、处理时间、输入物品/流体、输出物品/流体。
+- TileEntity 直接查询对应机器类型的注册表。
+- NEI 集成需显式编写处理器（不可避免），但 MineTweaker 3 挂钩自然映射（每种机器类型对应的 `addRecipe`/`removeRecipe` 方法）。
+
+### 流体 API——完整能力层
+
+- 构建**完整的流体能力层**（非轻量工具类），在 1.7.10 `IFluidHandler` 之上封装现代风格的 API：
+  - `fill(FluidStack, boolean simulate)` → `int amountFilled`
+  - `drain(FluidStack, boolean simulate)` → `FluidStack drained`
+  - `tryPushToNeighbor(TileEntity, ForgeDirection, FluidStack)` 等便捷方法
+- 支撑后续 Basin 的多流体 I/O、Mixer 的流体配方、Pipe 的跨方块传输。
+
+### 附魔系统——自定义方块方案
+
+- Create 的附魔工业本质上属于附加模组，**完全自定义方块**：自定义容器、自定义 GUI、自定义附魔逻辑。
+- 不使用 Mixin 修改原版附魔台/铁砧——避免与其他修改附魔的模组（Thaumcraft 等）冲突。
+- "超平坦附魔"通过自定义容器的 `canEnchant()` 检查可配置上限，而非突破原版硬编码限制。
+- 输出物品带有合法的原版 NBT 附魔标签，可通过 `EnchantmentHelper.getEnchantmentLevel()` 被其他模组正常读取。
+
+### MineTweaker 3 集成
+
+- 每种机器类型对应一个 ZenScript 处理器：`mods.create.Millstone`、`mods.create.Fan`、`mods.create.Press`、`mods.create.Mixer`。
+- 每个处理器提供：`addRecipe()`、`removeRecipe()`、`removeAll()`。
+- **默认配方**在 `init` 阶段注册（作为合理默认值）。
+- **MT3 脚本**推荐在 `postInit` 阶段运行，覆盖或删除默认配方。
+- 模式参照 GT5U 的 MT3 处理器实现。
+
+### Public API 策略
+
+- **初期采用显式标记方案**：使用 `@PublicAPI` 注解标记约 5-10 个核心接口：
+  - `IKineticTile`（动力方块接口）
+  - 动力网络查询方法（根据坐标查询网络速度/应力）
+  - `ProcessingRecipeRegistry`（配方注册 API）
+  - 流体能力层接口
+- 其他所有类和方法保持 `internal` 或标记为 `@Internal`。
+- **后期**：待整个模组成熟后评估哪些额外的 API 需要开放给附属开发者。
+
+### 构建系统初始化策略
+
+- **不从 GTNH ExampleMod 模板直接克隆**。而是以模板为参考，选择性复制所需部分：
+  - Gradle Wrapper + `build.gradle` 结构（重写以支持 Kotlin/Java 混合编译）
+  - UniMixins 配置（`mixin.create.json` 模板、Mixin Plugin 类桩）
+  - CI 配置（适配当前项目）
+  - Spotless 代码格式化（初期使用宽松配置，后期收紧）
+- Kotlin 从 Phase 0 开头就在 Gradle 中配置，模拟 Create 6.0.8 的 Kotlin 代码（Kotlin 部分改动预期少）。
