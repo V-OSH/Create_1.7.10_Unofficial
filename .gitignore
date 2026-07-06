@@ -22,3 +22,49 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Gradle 自动化构建工具产生的缓存和运行目录
+.gradle/
+build/
+run/
+out/
+
+# Forge 1.7.10 特有的反编译和设置目录
+eclipse/
+.mcp/
+forge/
+
+# 开发工具（IDE）配置文件
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+
+# 操作系统临时文件
+Thumbs.db
+.DS_Store
+
+# Kotlin 构建缓存 (Kotlin 2.0+)
+.kotlin/
+
+# Minecraft 运行日志目录 (含 .log.gz 等)
+logs/
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+tmp/
+bin/
+
+# Gradle 本地配置
+local.properties
+
+# Eclipse 启动配置
+*.launch
+
+# Local Configs for Claude
+.claude/
