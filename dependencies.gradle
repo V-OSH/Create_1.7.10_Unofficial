@@ -1,0 +1,7 @@
+// Add your dependencies here. See comments in GTNH ExampleMod dependencies.gradle for syntax.
+// lwjgl3ify and UniMixins are automatically included by the GTNH convention plugin.
+
+dependencies {
+    // Phase 3+: Add specific mod dependencies as needed
+    // Example: compileOnly("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
+}

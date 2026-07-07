@@ -55,10 +55,13 @@ Create 目前仅支持 Minecraft 1.20+ / 1.21+，其代码深度绑定现代 For
 ### 运行时环境
 
 - **Minecraft 版本**：1.7.10（Forge）
-- **Java 版本**：Java 17（通过 lwjgl3ify 实现对 1.7.10 的 Java 17+ 运行时支持）
+- **Java 版本**：
+  - **构建 JDK**：JDK 25（运行 Gradle / GTNH 构建工具链。Minecraft 代码本身不运行在此 JDK 上）
+  - **编译目标**：`--release 17`（模组源码编译到 Java 17 字节码级别，与 Create 6.0.8 对齐）
+  - **玩家运行时**：JDK 17+（用户需安装 lwjgl3ify 以在 1.7.10 上加载现代 Java 字节码）
 - **前置依赖**：lwjgl3ify（用户必须安装）、UniMixins（内嵌）
 - **构建系统**：ForgeGradle 5.x + Gradle（基于 GTNH ExampleMod 1.7.10 模板）
-- **编程语言**：Java 17 + Kotlin 混合
+- **编程语言**：Java + Kotlin 混合，源级编译目标 `--release 17`（与 Create 6.0.8 对齐）。构建需 JDK 25、编译到 Java 17 字节码、玩家在 JDK 17+ 运行时通过 lwjgl3ify 加载
 
 ### 技术架构
 
@@ -165,6 +168,19 @@ Create 目前仅支持 Minecraft 1.20+ / 1.21+，其代码深度绑定现代 For
 ## Design Refinements (2026-07-06 Grilling)
 
 以下决策通过与上述 Implementation Decisions 交叉审查，细化或补充了原有设计。
+
+### JDK 版本选择
+
+- **构建 JDK 25**、编译目标 `--release 17`、玩家运行时 JDK 17+。
+- 三层 JDK 策略：
+  1. **构建层（JDK 25）**：Gradle + GTNH 构建工具链运行所需的 JDK。GTNH 生态（ForgeGradle / RetroFuturaGradle / gtnhsettingsconvention 2.x）已全面要求 JDK 25。此为开发环境配置一次性成本，终端用户无需 JDK 25。
+  2. **编译目标层（`--release 17`）**：模组源码编译到的 Java 字节码版本。保持与 Create 6.0.8 参考源码的语法完全匹配，避免意外使用高版本 API 导致回移植复杂度增加。
+  3. **运行时层（JDK 17+）**：玩家通过 lwjgl3ify 在 1.7.10 上加载现代 Java 字节码所需的最低 JDK 版本。lwjgl3ify 推荐 JDK 21+，但 JDK 17 为硬性下限。
+- 选择 JDK 25 的原因：
+  - GTNH 构建工具链（gtnhgradle 2.x）硬性要求 JDK 25，无向后兼容
+  - GTNH 选择追踪最新 JDK 以最大化工具链生命周期
+  - 如果将来需要 Java 21+ 特性，编译目标可以从 `--release 17` 向上调整，无需迁移构建环境
+- 选择 `--release 17` 的原因：Create 6.0.8 源码使用 Java 17 语法特性（records, switch expressions, sealed classes 等），交叉编译到 Java 17 字节码确保语义等价。
 
 ### 参考源码版本
 

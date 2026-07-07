@@ -1,0 +1,5 @@
+// Add any additional repositories for your dependencies here.
+
+repositories {
+    // Phase 3+: Add specific mod repositories as needed
+}
