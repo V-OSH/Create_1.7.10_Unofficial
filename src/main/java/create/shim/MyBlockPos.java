@@ -67,6 +67,21 @@ public final class MyBlockPos {
         return ((x * 31 + y) * 31 + z);
     }
 
+    /** Pack into a 64-bit long: X(26 bits) | Y(12 bits) | Z(26 bits). */
+    public long asLong() {
+        return ((long) (getX() & 0x3FFFFFF) << 38)
+             | ((long) (getY() & 0xFFF) << 26)
+             | (long) (getZ() & 0x3FFFFFF);
+    }
+
+    /** Unpack a 64-bit long back into a MyBlockPos. */
+    public static MyBlockPos fromLong(long packed) {
+        int x = (int) (packed >> 38);
+        int y = (int) ((packed >> 26) & 0xFFF);
+        int z = (int) (packed << 38 >> 38);
+        return new MyBlockPos(x, y, z);
+    }
+
     @Override
     public String toString() {
         return "BlockPos{x=" + x + ", y=" + y + ", z=" + z + "}";

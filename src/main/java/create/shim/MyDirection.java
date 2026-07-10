@@ -97,5 +97,15 @@ public enum MyDirection {
 
         public boolean isHorizontal() { return this != Y; }
         public boolean isVertical() { return this == Y; }
+
+        /** Convert a ForgeDirection to the corresponding axis. */
+        public static Axis fromForge(net.minecraftforge.common.util.ForgeDirection dir) {
+            return switch (dir) {
+                case DOWN, UP -> Y;
+                case NORTH, SOUTH -> Z;
+                case WEST, EAST -> X;
+                default -> Y;
+            };
+        }
     }
 }

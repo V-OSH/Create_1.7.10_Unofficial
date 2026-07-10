@@ -1,3 +1,13 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.jdt.ls.java.home": "C:/Program Files/Java/jdk-25.0.3",
+    "java.import.gradle.java.home": "C:/Program Files/Java/jdk-25.0.3",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.import.exclusions": [
+        "**/build/**"
+    ],
+    "files.watcherExclude": {
+        "**/build/**": true
+    },
+    "python-envs.defaultEnvManager": "ms-python.python:system"
 }
