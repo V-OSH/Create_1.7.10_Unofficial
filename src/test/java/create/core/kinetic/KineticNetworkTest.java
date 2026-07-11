@@ -142,6 +142,28 @@ class KineticNetworkTest {
         assertNotSame(net0, net1);
     }
 
+    @Test
+    void dirtyNetworksAreDimensionScoped() {
+        KineticNetworkManager.markDirty(100L, 0);
+
+        assertTrue(KineticNetworkManager.isDirty(100L, 0));
+        assertFalse(KineticNetworkManager.isDirty(100L, 1));
+
+        KineticNetworkManager.clearDirty(100L, 0);
+
+        assertFalse(KineticNetworkManager.isDirty(100L, 0));
+    }
+
+    @Test
+    void worldUnloadClearsDirtyNetworks() {
+        KineticNetworkManager.markDirty(100L, 0);
+        assertTrue(KineticNetworkManager.isDirty(100L, 0));
+
+        KineticNetworkManager.onWorldUnload(0);
+
+        assertFalse(KineticNetworkManager.isDirty(100L, 0));
+    }
+
     // --- Speed scaling ---
 
     @Test

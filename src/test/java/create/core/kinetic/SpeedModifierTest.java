@@ -53,6 +53,16 @@ class SpeedModifierTest {
         assertEquals(1.0f, modifier, 0.001f);
     }
 
+    @Test
+    void shaftMetadata_roundTripsAllAxes() {
+        assertEquals(MyDirection.Axis.X, ShaftBlock.axisFromMeta(
+                ShaftBlock.metaFromAxis(MyDirection.Axis.X)));
+        assertEquals(MyDirection.Axis.Y, ShaftBlock.axisFromMeta(
+                ShaftBlock.metaFromAxis(MyDirection.Axis.Y)));
+        assertEquals(MyDirection.Axis.Z, ShaftBlock.axisFromMeta(
+                ShaftBlock.metaFromAxis(MyDirection.Axis.Z)));
+    }
+
     // --- Small cogwheel connections ---
 
     @Test

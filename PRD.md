@@ -110,15 +110,65 @@ Create 目前仅支持 Minecraft 1.20+ / 1.21+，其代码深度绑定现代 For
 
 ### 模块实施顺序
 
-- Phase 0：项目搭建 — GTNH ExampleMod 模板 + Shim 层基础数据结构 + JUnit 冒烟测试（shim 类型基本运算）
-- Phase 1：注册系统 — 方块、物品、TileEntity、创造模式标签页、自定义 IPacket 抽象层
-- Phase 2：动力网络引擎 — BFS 传播算法、ChunkEvent 处理、动力源、齿轮/传动杆/转轴、JUnit 单元测试
-- Phase 3a：简单机械 — 粉碎机、动力钻、鼓风机、ProcessingRecipeRegistry
-- Phase 3b：传送带 — 多段传送带、物品实体运输、隧穿/漏斗交互、坡道段
-- Phase 3c：机械臂 — 库存目标选择、状态机、姿态动画
-- Phase 4：流体系统 — 完整流体能力层、动力泵、管道、储罐
-- Phase 5：附魔系统 — 自定义附魔台方块/容器/GUI、液体经验、超平坦附魔
-- Phase 6：附属扩展 — Create: Big Cannons、Create: Aeronautics（独立项目，后期）
+- Phase 0：项目搭建 — GTNH ExampleMod 模板 + Shim 层基础数据结构 + JUnit 冒烟测试（shim 类型基本运算）✅
+- Phase 1：注册系统 — 方块、物品、TileEntity、创造模式标签页、自定义 IPacket 抽象层（已完成）
+- Phase 2：动力网络引擎 — BFS 传播算法、ChunkEvent 处理、动力源、齿轮/传动杆/转轴、JUnit 单元测试（已完成）
+- Phase 3a：简单机械 — 粉碎机、动力钻、鼓风机、ProcessingRecipeRegistry（已完成）
+- Phase 3b：传送带 — 多段传送带、物品实体运输、隧穿/漏斗交互、坡道段（Phase 5 重构）
+- Phase 3c：机械臂 — 库存目标选择、状态机、姿态动画（未开始）
+
+## 2026-07-11 全面修复计划（渲染 + 碰撞 + 交互）
+
+以下 Phase 在原模块实施顺序之后追加，解决游戏内实际表现严重偏差的问题：
+
+### Phase R1（渲染地基）
+- **ISBRH（KineticRenderer）**：为每个 KineticBlockType 手动 Tessellator 绘制方块模型——传动杆（6px 截面）、齿轮（齿盘 + 中心杆）、磨石、钻头/鼓风机/电机/水车（机器外形）
+- **TESR（KineticTileEntityRenderer）**：GL 旋转变换，partialTick 插值 `prevAngle + (angle - prevAngle) * partialTicks`
+- **纹理图标注册**：`KineticBlock.registerIcons()` + `registerTexture()`，所有子类覆写 getIcon()
+- 涉及文件：KineticRenderer.java（新）、KineticTileEntityRenderer.java（新）、KineticBlock.java、KineticTileEntity.java、CreateMod.java、所有 Block 子类
+
+### Phase R2（碰撞箱 + 多向放置）
+- 传动杆碰撞箱改为 `5/16,0,5/16 → 11/16,1,11/16`（原版 SIX_VOXEL_POLE）；Y 轴传动杆碰撞箱仅 1px 高（防窒息）；`getCollisionBoundingBoxFromPool()` 返回薄碰撞箱
+- 齿轮：小齿轮 `2/16,6/16,2/16 → 14/16,10/16,14/16`；大齿轮 `0,6/16,0 → 1,10/16,1` + 传动杆轴心
+- CogwheelBlock 添加 `onBlockPlaced()` / `onBlockPlacedBy()`：根据点击面映射旋转轴（顶/底→Y，东/西→X，南/北→Z）；`createTileEntity()` 从 meta 读取 axis
+- 涉及文件：ShaftBlock.java、CogwheelBlock.java、MillstoneBlock.java
+
+### Phase R3（Creative Motor GUI）
+- 路径 A（传统 Container/GuiContainer）：水平滑块 -256 ~ +256 RPM，click-drag 调整，鼠标滚轮 8 RPM 步进
+- 网络数据包 PacketMotorSpeed（Client→Server）即时同步
+- GuiHandler（CreateGuiProxy）注册 GUI ID 0
+- 涉及文件：CreativeMotorContainer.java（新）、GuiCreativeMotor.java（新）、PacketMotorSpeed.java（新）、CreateGuiProxy.java（新）、CreativeMotorBlock.java、CreateMod.java
+
+### Phase R4（工具挖掘等级）
+- 按 Create 6.0.8 源码分配：SHAFT=pickaxe, COGWHEEL=axe+pickaxe, BELT=axe+pickaxe, MILLSTONE=pickaxe1, DRILL=axe+pickaxe1, ENCASED_FAN=axe+pickaxe1, CREATIVE_MOTOR=pickaxe1, WATER_WHEEL=axe
+- 涉及文件：所有 Block 构造函数
+
+### Phase R5（传送带完全重写）
+- BeltConnectorItem（2D 物品贴图）替代 ItemBlock(BeltBlock)；BeltBlock 仅作技术方块（不可直接获得、不在创造栏）
+- 端点连接模式：手持 BeltConnector 右键传动杆选中起点 → 准星对准同平面另一传动杆右键，自动生成链条
+- 薄分段 ISBRH 渲染：belt middle = y=10→13（3px 高），START/END 各有特殊模型；UV 滚动动画
+- 移除右键存物品交互；物品仅通过掉落/漏斗输入
+- 涉及文件：BeltConnectorItem.java（新）、BeltRenderer.java（新）、BeltBlock.java（重写）、AllItems.java
+
+### Phase R6（应力网络验证与修复）
+- 测试场景：Creative Motor→传动杆→Millstone、齿轮变速、水车→风扇、过载停止
+- 检查 `canConnectTo()`、Source `hasShaftTowards()`（当前只允许 facing 面，原版 motor 反面不支持连接）
+- 涉及文件：KineticBlock.java、CreativeMotorTileEntity.java、WaterWheelTileEntity.java
+- 备注：此 Phase 在所有方块可见（Phase R1）+ 可放置（Phase R2）+ 可控速（Phase R3）后才能有效验证
+
+### Phase 7 待办（后期迭代）
+
+- Phase 7a：Creative Motor world-space 交互——参照 Create 6.0.8 ValueSettingsScreen / ValueBox 实现方块面上的浮层滑块 UI（替代 Phase R3 的传统 GUI）
+- Phase 7b：传送带斜向 45° 和垂直段（当前仅水平直线）
+- Phase 7c：传送带放置粒子引导线（参照原版 BeltConnectorItem 的粒子系统）
+- Phase 7d：精细方块模型——替换 Phase R1 的简单矩形几何体为原版级别的精细 Tessellator 模型
+
+### 后续计划
+
+- Phase 8：流体系统 — 完整流体能力层、动力泵、管道、储罐
+- Phase 9：附魔系统 — 自定义附魔台方块/容器/GUI、液体经验、超平坦附魔
+- Phase 10：机械臂 — 库存目标选择、状态机、姿态动画
+- Phase 11：附属扩展 — Create: Big Cannons、Create: Aeronautics（独立项目，后期）
 
 ### Ponder 系统
 
@@ -270,7 +320,7 @@ Create 目前仅支持 Minecraft 1.20+ / 1.21+，其代码深度绑定现代 For
 
 - **不从 GTNH ExampleMod 模板直接克隆**。而是以模板为参考，选择性复制所需部分：
   - Gradle Wrapper + `build.gradle` 结构（重写以支持 Kotlin/Java 混合编译）
-  - UniMixins 配置（`mixin.create.json` 模板、Mixin Plugin 类桩）
+  - UniMixins 配置（`mixins.create.json` 模板、Mixin Plugin 类桩）
   - CI 配置（适配当前项目）
   - Spotless 代码格式化（初期使用宽松配置，后期收紧）
 - Kotlin 从 Phase 0 开头就在 Gradle 中配置，模拟 Create 6.0.8 的 Kotlin 代码（Kotlin 部分改动预期少）。

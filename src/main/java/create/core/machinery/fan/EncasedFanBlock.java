@@ -3,12 +3,17 @@ package create.core.machinery.fan;
 import create.core.kinetic.KineticBlock;
 import create.core.kinetic.KineticBlockType;
 import create.shim.MyDirection;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Encased Fan — produces an air current in its facing direction when powered.
@@ -20,6 +25,20 @@ public class EncasedFanBlock extends KineticBlock {
     public EncasedFanBlock() {
         setBlockName("create:encased_fan");
         setBlockTextureName("create:encased_fan");
+        setHarvestLevel("axe", 0);
+        setHarvestLevel("pickaxe", 1);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerBlockIcons(IIconRegister reg) {
+        registerTexture(reg, "encased_fan");
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(int side, int meta) {
+        return iconMap.get("encased_fan");
     }
 
     @Override
@@ -30,6 +49,29 @@ public class EncasedFanBlock extends KineticBlock {
     @Override
     public Class<? extends TileEntity> getTileEntityClass() {
         return EncasedFanTileEntity.class;
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+        setFanBounds(world.getBlockMetadata(x, y, z));
+    }
+
+    @Override
+    public void setBlockBoundsForItemRender() {
+        setBlockBounds(1 / 16f, 1 / 16f, 1 / 16f, 15 / 16f, 15 / 16f, 15 / 16f);
+    }
+
+    private void setFanBounds(int metadata) {
+        ForgeDirection facing = ForgeDirection.getOrientation(metadata & 7);
+        switch (facing) {
+            case DOWN: setBlockBounds(1 / 16f, 0, 1 / 16f, 15 / 16f, 15 / 16f, 15 / 16f); break;
+            case UP: setBlockBounds(1 / 16f, 1 / 16f, 1 / 16f, 15 / 16f, 1, 15 / 16f); break;
+            case NORTH: setBlockBounds(1 / 16f, 1 / 16f, 0, 15 / 16f, 15 / 16f, 15 / 16f); break;
+            case SOUTH: setBlockBounds(1 / 16f, 1 / 16f, 1 / 16f, 15 / 16f, 15 / 16f, 1); break;
+            case WEST: setBlockBounds(0, 1 / 16f, 1 / 16f, 15 / 16f, 15 / 16f, 15 / 16f); break;
+            case EAST: setBlockBounds(1 / 16f, 1 / 16f, 1 / 16f, 1, 15 / 16f, 15 / 16f); break;
+            default: setBlockBounds(1 / 16f, 1 / 16f, 1 / 16f, 15 / 16f, 15 / 16f, 15 / 16f);
+        }
     }
 
     @Override

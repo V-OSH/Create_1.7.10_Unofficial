@@ -1,8 +1,11 @@
 package create.foundation;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import create.core.kinetic.belt.BeltBlock;
 import create.core.kinetic.CogwheelBlock;
 import create.core.kinetic.ShaftBlock;
+import create.core.kinetic.source.CreativeMotorBlock;
+import create.core.kinetic.source.WaterWheelBlock;
 import create.core.machinery.drill.DrillBlock;
 import create.core.machinery.fan.EncasedFanBlock;
 import create.core.machinery.millstone.MillstoneBlock;
@@ -26,6 +29,13 @@ public final class AllBlocks {
     public static final Block DRILL = new DrillBlock();
     public static final Block ENCASED_FAN = new EncasedFanBlock();
 
+    // -- Kinetic sources (Phase 2 gap fill) --
+    public static final Block CREATIVE_MOTOR = new CreativeMotorBlock();
+    public static final Block WATER_WHEEL = new WaterWheelBlock();
+
+    // -- Conveyor belt (Phase 3b) --
+    public static final Block BELT = new BeltBlock();
+
     // Placeholder for future blocks — append below this line
 
     private static boolean registered = false;
@@ -41,6 +51,9 @@ public final class AllBlocks {
         GameRegistry.registerBlock(MILLSTONE, "millstone");
         GameRegistry.registerBlock(DRILL, "drill");
         GameRegistry.registerBlock(ENCASED_FAN, "encased_fan");
+        GameRegistry.registerBlock(CREATIVE_MOTOR, "creative_motor");
+        GameRegistry.registerBlock(WATER_WHEEL, "water_wheel");
+        GameRegistry.registerBlock(BELT, null, "belt");
     }
 
     private AllBlocks() {}

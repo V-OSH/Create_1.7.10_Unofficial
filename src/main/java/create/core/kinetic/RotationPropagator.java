@@ -53,6 +53,7 @@ public final class RotationPropagator {
     public static void handleRemoved(World world, MyBlockPos removedPos, IKineticTile removed) {
         int dimId = removed.getDimensionId();
         Long oldNetworkId = removed.getNetworkId();
+        boolean removedIsSource = removed.isSource();
 
         if (oldNetworkId != null) {
             KineticNetwork network = KineticNetworkManager.getNetwork(oldNetworkId, dimId);
@@ -72,10 +73,21 @@ public final class RotationPropagator {
             IKineticTile neighbor = getKineticTile(world, neighborPos);
             if (neighbor == null) continue;
 
-            if (neighbor.getSourcePosition()
-                    .map(sp -> sp.equals(removedPos))
-                    .orElse(false)) {
-                orphaned.add(neighbor);
+            if (removedIsSource) {
+                // Sources set their own sourcePosition to null (self-powered),
+                // so no downstream tile lists the source as its sourcePosition.
+                // Collect all directly-connected neighbors sharing the same network.
+                if (neighbor.getNetworkId() != null
+                        && neighbor.getNetworkId().equals(oldNetworkId)) {
+                    orphaned.add(neighbor);
+                }
+            } else {
+                // For non-source tiles, downstream tiles have sourcePosition pointing here
+                if (neighbor.getSourcePosition()
+                        .map(sp -> sp.equals(removedPos))
+                        .orElse(false)) {
+                    orphaned.add(neighbor);
+                }
             }
         }
 
@@ -124,6 +136,11 @@ public final class RotationPropagator {
 
         KineticBlockType fromType = from.getKineticType();
         KineticBlockType toType = to.getKineticType();
+
+        // Belt connections: always same-axis shaft connection, speed passes through 1:1
+        if (fromType == KineticBlockType.BELT || toType == KineticBlockType.BELT) {
+            return 1.0f;
+        }
 
         // Large → Small: double speed, reverse direction
         if (fromType == KineticBlockType.LARGE_COGWHEEL
@@ -254,6 +271,10 @@ public final class RotationPropagator {
                     // Both must be cogwheels for diagonal connection
                     KineticBlockType ct = current.getKineticType();
                     KineticBlockType nt = neighbor.getKineticType();
+
+                    // Belts do not have diagonal connections — skip belt types
+                    if (ct == KineticBlockType.BELT || nt == KineticBlockType.BELT) continue;
+
                     boolean currentIsCog = ct == KineticBlockType.SMALL_COGWHEEL
                             || ct == KineticBlockType.LARGE_COGWHEEL;
                     boolean neighborIsCog = nt == KineticBlockType.SMALL_COGWHEEL
@@ -498,7 +519,7 @@ public final class RotationPropagator {
      * Package-private overload for unit testing. Accepts a lookup function
      * instead of a World, so tests can provide a stub neighbor map.
      */
-    static void handleAdded(IKineticTile added,
+    public static void handleAdded(IKineticTile added,
                             java.util.function.Function<MyBlockPos, IKineticTile> lookup) {
         if (added.isSource()) {
             createNetwork(added, lookup);
@@ -508,10 +529,11 @@ public final class RotationPropagator {
         }
     }
 
-    static void handleRemoved(MyBlockPos removedPos, IKineticTile removed,
+    public static void handleRemoved(MyBlockPos removedPos, IKineticTile removed,
                               java.util.function.Function<MyBlockPos, IKineticTile> lookup) {
         int dimId = removed.getDimensionId();
         Long oldNetworkId = removed.getNetworkId();
+        boolean removedIsSource = removed.isSource();
 
         if (oldNetworkId != null) {
             KineticNetwork network = KineticNetworkManager.getNetwork(oldNetworkId, dimId);
@@ -529,10 +551,17 @@ public final class RotationPropagator {
             MyBlockPos neighborPos = removedPos.offset(fromForge(dir));
             IKineticTile neighbor = lookup.apply(neighborPos);
             if (neighbor == null) continue;
-            if (neighbor.getSourcePosition()
-                    .map(sp -> sp.equals(removedPos))
-                    .orElse(false)) {
-                orphaned.add(neighbor);
+            if (removedIsSource) {
+                if (neighbor.getNetworkId() != null
+                        && neighbor.getNetworkId().equals(oldNetworkId)) {
+                    orphaned.add(neighbor);
+                }
+            } else {
+                if (neighbor.getSourcePosition()
+                        .map(sp -> sp.equals(removedPos))
+                        .orElse(false)) {
+                    orphaned.add(neighbor);
+                }
             }
         }
 

@@ -14,9 +14,9 @@ import net.minecraftforge.common.util.ForgeDirection;
  * Base class for all kinetic tile entities. Implements {@link IKineticTile}
  * so the BFS propagator can traverse the network.
  *
- * <p>Face connections (6 booleans) and network identity are persisted to NBT.
- * Speed, stress, and network ID are transient — recalculated by the kinetic
- * network on load/placement.</p>
+ * <p>Face connections (6 booleans) and visual state are persisted to NBT.
+ * Speed, source position, stress, and network ID are transient and are
+ * recalculated by the kinetic network on load/placement.</p>
  */
 public class KineticTileEntity extends TileEntity implements IKineticTile {
 
@@ -46,7 +46,10 @@ public class KineticTileEntity extends TileEntity implements IKineticTile {
     /** Set to true to re-attach to the network on the next tick. */
     public boolean updateSpeed;
 
-    /** Cached visual angle of the rotating part, in radians. */
+    /** Previous angle for partial-tick interpolation. */
+    public float prevAngle;
+
+    /** Current visual angle of the rotating part, in radians. Updated every client tick. */
     public float angle;
 
     // --- IKineticTile: speed ---
@@ -169,21 +172,9 @@ public class KineticTileEntity extends TileEntity implements IKineticTile {
         for (int i = 0; i < 6; i++) {
             connections[i] = tag.getBoolean("conn_" + i);
         }
-        // Restore network identity for chunk-load reconnection
-        if (tag.hasKey("networkId")) {
-            networkId = tag.getLong("networkId");
-        } else {
-            networkId = null;
-        }
-        if (tag.hasKey("sourceX")) {
-            sourcePosition = new MyBlockPos(
-                    tag.getInteger("sourceX"),
-                    tag.getInteger("sourceY"),
-                    tag.getInteger("sourceZ"));
-        } else {
-            sourcePosition = null;
-        }
-        speed = tag.getFloat("speed");
+        networkId = null;
+        sourcePosition = null;
+        speed = 0;
         angle = tag.getFloat("angle");
     }
 
@@ -195,15 +186,6 @@ public class KineticTileEntity extends TileEntity implements IKineticTile {
                 tag.setBoolean("conn_" + i, true);
             }
         }
-        if (networkId != null) {
-            tag.setLong("networkId", networkId);
-        }
-        if (sourcePosition != null) {
-            tag.setInteger("sourceX", sourcePosition.getX());
-            tag.setInteger("sourceY", sourcePosition.getY());
-            tag.setInteger("sourceZ", sourcePosition.getZ());
-        }
-        tag.setFloat("speed", speed);
         tag.setFloat("angle", angle);
     }
 
@@ -213,6 +195,7 @@ public class KineticTileEntity extends TileEntity implements IKineticTile {
     public Packet getDescriptionPacket() {
         NBTTagCompound tag = new NBTTagCompound();
         writeToNBT(tag);
+        writeTransientSyncData(tag);
         return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
     }
 
@@ -220,15 +203,51 @@ public class KineticTileEntity extends TileEntity implements IKineticTile {
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         NBTTagCompound tag = pkt.func_148857_g();
         readFromNBT(tag);
+        readTransientSyncData(tag);
+    }
+
+    /** Add transient runtime fields that are needed by client-side rendering. */
+    protected void writeTransientSyncData(NBTTagCompound tag) {
+        tag.setFloat("speed", speed);
+    }
+
+    /** Read transient runtime fields from a tile update packet. */
+    protected void readTransientSyncData(NBTTagCompound tag) {
+        speed = tag.getFloat("speed");
     }
 
     // --- Tick ---
 
     @Override
+    public void validate() {
+        super.validate();
+        if (worldObj != null && !worldObj.isRemote) {
+            updateSpeed = true;
+        }
+    }
+
+    @Override
     public void updateEntity() {
+        if (worldObj != null && worldObj.isRemote && speed != 0) {
+            prevAngle = angle;
+            angle += speed / 20f;
+            float fullTurn = (float) (Math.PI * 2);
+            if (angle > fullTurn || angle < -fullTurn) {
+                angle %= fullTurn;
+            }
+        }
         if (worldObj != null && !worldObj.isRemote && updateSpeed) {
             updateSpeed = false;
             RotationPropagator.handleAdded(worldObj, this);
+            KineticNetworkManager.clearDirty(networkId, getDimensionId());
         }
+    }
+
+    /**
+     * Get the interpolated render angle for smooth animation.
+     * Call from TESR with the partial tick time.
+     */
+    public float getRenderAngle(float partialTicks) {
+        return prevAngle + (angle - prevAngle) * partialTicks;
     }
 }

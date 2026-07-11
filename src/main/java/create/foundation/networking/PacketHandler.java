@@ -16,20 +16,16 @@ public final class PacketHandler {
 
     public static final String CHANNEL = "create";
 
+    public static PacketHandler INSTANCE;
+
     private final SimpleNetworkWrapper channel;
     private int nextDiscriminator;
 
     public PacketHandler() {
+        INSTANCE = this;
         channel = NetworkRegistry.INSTANCE.newSimpleChannel(CHANNEL);
     }
 
-    /**
-     * Register a packet type.
-     *
-     * @param handlerSide the side where {@link IPacket#handle()} executes —
-     *                    {@link Side#CLIENT} for server-to-client packets,
-     *                    {@link Side#SERVER} for client-to-server packets
-     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void registerPacket(Class<? extends IPacket> packetClass, Side handlerSide) {
         byte discriminator = (byte) nextDiscriminator++;
@@ -41,29 +37,32 @@ public final class PacketHandler {
         );
     }
 
-    public void sendToServer(IPacket packet) {
+    public <T extends IMessage> void registerMessage(
+            Class<T> packetClass, IMessageHandler<T, ?> handler, Side handlerSide) {
+        byte discriminator = (byte) nextDiscriminator++;
+        channel.registerMessage(handler, packetClass, discriminator, handlerSide);
+    }
+
+    public void sendToServer(IMessage packet) {
         channel.sendToServer(packet);
     }
 
-    public void sendToAll(IPacket packet) {
+    public void sendToAll(IMessage packet) {
         channel.sendToAll(packet);
     }
 
-    public void sendTo(IPacket packet, EntityPlayerMP player) {
+    public void sendTo(IMessage packet, EntityPlayerMP player) {
         channel.sendTo(packet, player);
     }
 
-    public void sendToAllAround(IPacket packet, NetworkRegistry.TargetPoint point) {
+    public void sendToAllAround(IMessage packet, NetworkRegistry.TargetPoint point) {
         channel.sendToAllAround(packet, point);
     }
 
-    public void sendToDimension(IPacket packet, int dimensionId) {
+    public void sendToDimension(IMessage packet, int dimensionId) {
         channel.sendToDimension(packet, dimensionId);
     }
 
-    /**
-     * Generic dispatcher that calls {@link IPacket#handle()} on the message.
-     */
     public static final class PacketDispatcher
             implements IMessageHandler<IPacket, IMessage> {
 

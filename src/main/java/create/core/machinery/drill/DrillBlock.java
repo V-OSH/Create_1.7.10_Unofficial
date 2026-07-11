@@ -3,12 +3,17 @@ package create.core.machinery.drill;
 import create.core.kinetic.KineticBlock;
 import create.core.kinetic.KineticBlockType;
 import create.shim.MyDirection;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Mechanical Drill — breaks the block in front of it using rotational power.
@@ -19,6 +24,20 @@ public class DrillBlock extends KineticBlock {
     public DrillBlock() {
         setBlockName("create:drill");
         setBlockTextureName("create:drill");
+        setHarvestLevel("axe", 0);
+        setHarvestLevel("pickaxe", 1);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerBlockIcons(IIconRegister reg) {
+        registerTexture(reg, "drill");
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(int side, int meta) {
+        return iconMap.get("drill");
     }
 
     @Override
@@ -29,6 +48,29 @@ public class DrillBlock extends KineticBlock {
     @Override
     public Class<? extends TileEntity> getTileEntityClass() {
         return DrillTileEntity.class;
+    }
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+        setDirectionalMachineBounds(world.getBlockMetadata(x, y, z));
+    }
+
+    @Override
+    public void setBlockBoundsForItemRender() {
+        setBlockBounds(2 / 16f, 2 / 16f, 2 / 16f, 14 / 16f, 14 / 16f, 14 / 16f);
+    }
+
+    private void setDirectionalMachineBounds(int metadata) {
+        ForgeDirection facing = ForgeDirection.getOrientation(metadata & 7);
+        switch (facing) {
+            case DOWN: setBlockBounds(2 / 16f, 0, 2 / 16f, 14 / 16f, 14 / 16f, 14 / 16f); break;
+            case UP: setBlockBounds(2 / 16f, 2 / 16f, 2 / 16f, 14 / 16f, 1, 14 / 16f); break;
+            case NORTH: setBlockBounds(2 / 16f, 2 / 16f, 0, 14 / 16f, 14 / 16f, 14 / 16f); break;
+            case SOUTH: setBlockBounds(2 / 16f, 2 / 16f, 2 / 16f, 14 / 16f, 14 / 16f, 1); break;
+            case WEST: setBlockBounds(0, 2 / 16f, 2 / 16f, 14 / 16f, 14 / 16f, 14 / 16f); break;
+            case EAST: setBlockBounds(2 / 16f, 2 / 16f, 2 / 16f, 1, 14 / 16f, 14 / 16f); break;
+            default: setBlockBounds(2 / 16f, 2 / 16f, 2 / 16f, 14 / 16f, 14 / 16f, 14 / 16f);
+        }
     }
 
     @Override

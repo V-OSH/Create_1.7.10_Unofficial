@@ -245,4 +245,94 @@ class PropagationTest {
         // At speed 64: unloaded = 256, loaded members = 4 * 64 = 256 → 512
         assertEquals(512.0f, net.calculateStress(64.0f), 0.001f);
     }
+
+    // --- Source removal (Phase 2 gap fix) ---
+
+    @Test
+    void sourceRemoved_clearsDownstreamNetwork() {
+        TestKineticTile source = place(new TestKineticTile(0, 0, 0, KineticBlockType.SHAFT,
+                MyDirection.Axis.Y)
+                .asSource(64.0f, 512.0f)
+                .withConnection(ForgeDirection.UP));
+
+        TestKineticTile middle = place(new TestKineticTile(0, 1, 0, KineticBlockType.SHAFT,
+                MyDirection.Axis.Y)
+                .withConnection(ForgeDirection.DOWN)
+                .withConnection(ForgeDirection.UP));
+
+        TestKineticTile end = place(new TestKineticTile(0, 2, 0, KineticBlockType.SHAFT,
+                MyDirection.Axis.Y)
+                .withConnection(ForgeDirection.DOWN));
+
+        RotationPropagator.handleAdded(source, lookup());
+        assertEquals(64.0f, end.getSpeed(), 0.001f);
+
+        // Remove the source
+        world.remove(source.getKineticPos());
+        RotationPropagator.handleRemoved(source.getKineticPos(), source, lookup());
+
+        // All downstream tiles should be cleared
+        assertEquals(0.0f, middle.getSpeed(), 0.001f);
+        assertNull(middle.getNetworkId());
+        assertTrue(middle.getSourcePosition().isEmpty());
+
+        assertEquals(0.0f, end.getSpeed(), 0.001f);
+        assertNull(end.getNetworkId());
+        assertTrue(end.getSourcePosition().isEmpty());
+    }
+
+    @Test
+    void sourceRemoved_clearsBranchingNetwork() {
+        TestKineticTile source = place(new TestKineticTile(0, 0, 0, KineticBlockType.SHAFT,
+                MyDirection.Axis.Y)
+                .asSource(64.0f, 512.0f)
+                .withConnection(ForgeDirection.UP)
+                .withConnection(ForgeDirection.EAST));
+
+        TestKineticTile upBranch = place(new TestKineticTile(0, 1, 0, KineticBlockType.SHAFT,
+                MyDirection.Axis.Y)
+                .withConnection(ForgeDirection.DOWN));
+
+        TestKineticTile eastBranch = place(new TestKineticTile(1, 0, 0, KineticBlockType.SHAFT,
+                MyDirection.Axis.X)
+                .withConnection(ForgeDirection.WEST));
+
+        RotationPropagator.handleAdded(source, lookup());
+        assertEquals(64.0f, upBranch.getSpeed(), 0.001f);
+        assertEquals(64.0f, Math.abs(eastBranch.getSpeed()), 0.001f);
+
+        // Remove the source
+        world.remove(source.getKineticPos());
+        RotationPropagator.handleRemoved(source.getKineticPos(), source, lookup());
+
+        // Both branches should be cleared
+        assertEquals(0.0f, upBranch.getSpeed(), 0.001f);
+        assertNull(upBranch.getNetworkId());
+        assertEquals(0.0f, eastBranch.getSpeed(), 0.001f);
+        assertNull(eastBranch.getNetworkId());
+    }
+
+    @Test
+    void sourceRemoved_networkCleanedUp() {
+        TestKineticTile source = place(new TestKineticTile(0, 0, 0, KineticBlockType.SHAFT,
+                MyDirection.Axis.Y)
+                .asSource(64.0f, 512.0f)
+                .withConnection(ForgeDirection.UP));
+
+        TestKineticTile shaft = place(new TestKineticTile(0, 1, 0, KineticBlockType.SHAFT,
+                MyDirection.Axis.Y)
+                .withConnection(ForgeDirection.DOWN));
+
+        RotationPropagator.handleAdded(source, lookup());
+        Long networkId = source.getNetworkId();
+        assertNotNull(networkId);
+        assertNotNull(KineticNetworkManager.getNetwork(networkId, 0));
+
+        // Remove the source
+        world.remove(source.getKineticPos());
+        RotationPropagator.handleRemoved(source.getKineticPos(), source, lookup());
+
+        // Network should be gone (empty)
+        assertNull(KineticNetworkManager.getNetwork(networkId, 0));
+    }
 }

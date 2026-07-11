@@ -9,7 +9,7 @@ import net.minecraftforge.common.util.ForgeDirection;
  * Stub IKineticTile for unit testing the propagation algorithm.
  * No World or TileEntity dependency needed.
  */
-class TestKineticTile implements IKineticTile {
+public class TestKineticTile implements IKineticTile {
 
     private final MyBlockPos pos;
     private final KineticBlockType type;
@@ -23,7 +23,7 @@ class TestKineticTile implements IKineticTile {
     private MyBlockPos sourcePosition;
     private int dimId;
 
-    TestKineticTile(int x, int y, int z, KineticBlockType type, MyDirection.Axis axis) {
+    public TestKineticTile(int x, int y, int z, KineticBlockType type, MyDirection.Axis axis) {
         this.pos = new MyBlockPos(x, y, z);
         this.type = type;
         this.axis = axis;
@@ -32,28 +32,28 @@ class TestKineticTile implements IKineticTile {
 
     // --- Configuration helpers ---
 
-    TestKineticTile asSource(float generatedSpeed, float capacity) {
+    public TestKineticTile asSource(float generatedSpeed, float capacity) {
         this.generatedSpeed = generatedSpeed;
         this.capacityAdded = capacity;
         return this;
     }
 
-    TestKineticTile asConsumer(float stressApplied) {
+    public TestKineticTile asConsumer(float stressApplied) {
         this.stressApplied = stressApplied;
         return this;
     }
 
-    TestKineticTile withConnection(ForgeDirection dir) {
+    public TestKineticTile withConnection(ForgeDirection dir) {
         this.connections[dir.ordinal()] = true;
         return this;
     }
 
-    TestKineticTile withConnection(ForgeDirection dir, boolean connected) {
+    public TestKineticTile withConnection(ForgeDirection dir, boolean connected) {
         this.connections[dir.ordinal()] = connected;
         return this;
     }
 
-    TestKineticTile withSpeed(float speed) {
+    public TestKineticTile withSpeed(float speed) {
         this.speed = speed;
         return this;
     }

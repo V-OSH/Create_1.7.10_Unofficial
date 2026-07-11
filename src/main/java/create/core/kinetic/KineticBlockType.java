@@ -5,5 +5,6 @@ public enum KineticBlockType {
     SHAFT,
     SMALL_COGWHEEL,
     LARGE_COGWHEEL,
-    SOURCE
+    SOURCE,
+    BELT
 }

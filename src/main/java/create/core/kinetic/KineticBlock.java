@@ -1,10 +1,17 @@
 package create.core.kinetic;
 
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Base class for all kinetic blocks. Handles TileEntity creation and
@@ -19,9 +26,49 @@ public abstract class KineticBlock extends Block {
         setStepSound(soundTypeWood);
     }
 
+    // --- Rendering ---
+
+    @SideOnly(Side.CLIENT)
+    protected final Map<String, IIcon> iconMap = new HashMap<>();
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerBlockIcons(IIconRegister reg) {
+        // Subclass should call this with its texture name
+    }
+
+    protected void registerTexture(IIconRegister reg, String name) {
+        iconMap.put(name, reg.registerIcon("create:" + name));
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(int side, int meta) {
+        // Default: return first registered icon
+        if (iconMap.isEmpty()) return null;
+        return iconMap.values().iterator().next();
+    }
+
+    @Override
+    public int getRenderType() {
+        return create.foundation.render.KineticRenderer.RENDER_ID;
+    }
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+        return AxisAlignedBB.getBoundingBox(
+                x + minX, y + minY, z + minZ,
+                x + maxX, y + maxY, z + maxZ);
+    }
+
     @Override
     public boolean hasTileEntity(int metadata) {
         return true;
+    }
+
+    @Override
+    public boolean isOpaqueCube() {
+        return false;
     }
 
     /** Returns the TileEntity class for registration wiring. */
@@ -146,9 +193,44 @@ public abstract class KineticBlock extends Block {
      *
      * <p>Shafts connect inline (same axis), cogwheels connect on any
      * perpendicular face. Two shafts on different axes do not connect.</p>
+     *
+     * <p>Sources (motors, water wheels) only connect via their shaft faces
+     * — they do not connect on every face like cogwheels.</p>
+     *
+     * <p>Belts connect only to shafts on their perpendicular rotation axis,
+     * and only via START/END segments (MIDDLE has no shaft connection).</p>
      */
     protected static boolean canConnectTo(IKineticTile from, IKineticTile to,
                                            ForgeDirection face) {
+        // Belt connections: belts only connect to shafts on their rotation axis
+        if (from.getKineticType() == KineticBlockType.BELT
+                || to.getKineticType() == KineticBlockType.BELT) {
+            IKineticTile belt = (from.getKineticType() == KineticBlockType.BELT) ? from : to;
+            IKineticTile other = (belt == from) ? to : from;
+            ForgeDirection beltFace = (belt == from) ? face : face.getOpposite();
+
+            // Belts only connect to shafts
+            if (other.getKineticType() != KineticBlockType.SHAFT) return false;
+
+            // Rotation axes must match
+            if (belt.getRotationAxis() != other.getRotationAxis()) return false;
+
+            // Belt face must be along the rotation axis
+            if (create.shim.MyDirection.Axis.fromForge(beltFace) != belt.getRotationAxis())
+                return false;
+
+            // Only START and END segments have shaft connection
+            return belt.hasShaftTowards(beltFace);
+        }
+
+        // Source blocks: connect only via their shaft faces
+        if (from.getKineticType() == KineticBlockType.SOURCE) {
+            return from.hasShaftTowards(face);
+        }
+        if (to.getKineticType() == KineticBlockType.SOURCE) {
+            return to.hasShaftTowards(face.getOpposite());
+        }
+
         // Shaft-to-shaft: must share the same rotation axis
         if (from.getKineticType() == KineticBlockType.SHAFT
                 && to.getKineticType() == KineticBlockType.SHAFT) {
