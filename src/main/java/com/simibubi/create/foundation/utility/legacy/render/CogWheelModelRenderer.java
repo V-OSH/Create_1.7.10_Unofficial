@@ -20,14 +20,15 @@ public final class CogWheelModelRenderer {
         for (Element element : CogWheelModel.elements()) {
             for (Map.Entry<Direction, Face> entry : element.faces().entrySet()) {
                 drawFace(block, brightness, rotate(vertices(element.bounds(), entry.getKey()), element.rotation()),
-                    entry.getValue());
+                    entry.getKey(), entry.getValue());
             }
         }
     }
 
-    private static void drawFace(CogWheelBlock block, int brightness, double[][] vertices, Face face) {
+    private static void drawFace(CogWheelBlock block, int brightness, double[][] vertices, Direction direction,
+        Face face) {
         Tessellator tessellator = Tessellator.instance;
-        double[][] uv = CogWheelModel.uvCorners(face);
+        double[][] uv = CogWheelModel.uvCorners(face, direction);
         int shift = Math.floorMod(face.rotation() / 90, 4);
         double[] normal = normal(vertices);
         IIcon icon = icon(block, face.texture());

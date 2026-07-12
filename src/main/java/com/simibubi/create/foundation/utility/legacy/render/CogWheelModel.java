@@ -55,8 +55,12 @@ public final class CogWheelModel {
             lerp(shrink, uv.maxU(), centreU), lerp(shrink, uv.maxV(), centreV));
     }
 
-    static double[][] uvCorners(Face face) {
+    static double[][] uvCorners(Face face, Direction direction) {
         Uv uv = shrinkUv(face.uv(), face.texture());
+        if (face.texture() == Texture.COGWHEEL && direction != Direction.UP && direction != Direction.DOWN) {
+            double pixel = 16.0 / textureWidth(face.texture());
+            uv = new Uv(uv.minU() + pixel, uv.minV() + pixel, uv.maxU() - pixel, uv.maxV() - pixel);
+        }
         return new double[][] {{uv.minU(), uv.minV()}, {uv.minU(), uv.maxV()}, {uv.maxU(), uv.maxV()},
             {uv.maxU(), uv.minV()}};
     }

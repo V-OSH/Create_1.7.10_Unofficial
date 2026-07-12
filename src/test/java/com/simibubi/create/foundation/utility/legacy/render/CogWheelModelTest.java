@@ -43,12 +43,30 @@ class CogWheelModelTest {
     void assignsUvCornersInVanillaBlockFaceUvOrder() {
         CogWheelModel.Face face = new CogWheelModel.Face(CogWheelModel.Texture.COGWHEEL,
             new CogWheelModel.Uv(7, 8, 16, 9.5), 0);
-        double[][] corners = CogWheelModel.uvCorners(face);
+        double[][] corners = CogWheelModel.uvCorners(face, CogWheelModel.Direction.UP);
 
         assertCorner(corners[0], 7.5625, 8.09375);
         assertCorner(corners[1], 7.5625, 9.40625);
         assertCorner(corners[2], 15.4375, 9.40625);
         assertCorner(corners[3], 15.4375, 8.09375);
+    }
+
+    @Test
+    void insetsOnlyBrownSideFacesByOneSourcePixel() {
+        CogWheelModel.Face face = new CogWheelModel.Face(CogWheelModel.Texture.COGWHEEL,
+            new CogWheelModel.Uv(7, 8, 16, 9.5), 0);
+        double[][] side = CogWheelModel.uvCorners(face, CogWheelModel.Direction.NORTH);
+        double[][] top = CogWheelModel.uvCorners(face, CogWheelModel.Direction.UP);
+        CogWheelModel.Face axisFace = new CogWheelModel.Face(CogWheelModel.Texture.AXIS,
+            new CogWheelModel.Uv(6, 0, 10, 16), 0);
+        double[][] axisSide = CogWheelModel.uvCorners(axisFace, CogWheelModel.Direction.NORTH);
+
+        assertCorner(side[0], 8.0625, 8.59375);
+        assertCorner(side[2], 14.9375, 8.90625);
+        assertCorner(top[0], 7.5625, 8.09375);
+        assertCorner(top[2], 15.4375, 9.40625);
+        assertCorner(axisSide[0], 6.5, 2);
+        assertCorner(axisSide[2], 9.5, 14);
     }
 
     @Test
