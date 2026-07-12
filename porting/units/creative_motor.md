@@ -39,7 +39,9 @@ All paths are relative to `upstream/create-mc1.20.1-6.0.8/src/main/` unless gene
   entity type.
 - `LegacyKineticNetwork` provides the first minimal propagation seam, while `LegacyKineticWorldAdapter` isolates 1.7.10
   world access. It covers aligned shaft networks, source speed changes, disconnect clearing, faster-source arbitration,
-  and equal-opposite shutdown; gears, ratios, stress, and overload remain later work.
+  and equal-opposite shutdown. A4 guarantees only the single-Motor-to-Shaft closure: unlike upstream Create, the
+  temporary multi-source path does not yet break a conflicting source block. Gears, ratios, stress, overload, and
+  upstream conflict destruction remain later work.
 
 ## Automated checks
 
