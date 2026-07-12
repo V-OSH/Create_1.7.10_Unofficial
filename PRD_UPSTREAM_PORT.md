@@ -40,7 +40,7 @@ Create content is no longer treated as permanently excluded. The long-term goal 
 18. As an addon developer, I want a stable public API boundary after the core porting workflow is proven, so that legacy Create addons can target this port without depending on internals.
 19. As a contributor, I want each ported block or item to list its upstream files, adaptation notes, test status, and attribution, so that work is reviewable and repeatable.
 20. As a contributor, I want legacy-only compatibility code isolated from Create gameplay code, so that upstream structure remains recognizable.
-21. As a contributor, I want the current prototype implementation archived outside the formal compile path, so that old experimental code does not distort future porting decisions.
+21. As a contributor, I want the current prototype implementation archived outside the Git repository, so that old experimental code does not distort future porting decisions or the published repository.
 22. As a maintainer, I want a repeatable first milestone before broad content work, so that Shaft and Creative Motor become the template for every later block or item.
 23. As a maintainer, I want the repository to remain buildable after the A0 reorganization, so that structural cleanup does not leave the project in a broken long-term state.
 24. As a maintainer, I want source attribution and license discipline for upstream-derived code, so that the project respects Create's MIT license and original authorship.
@@ -75,7 +75,7 @@ Create content is no longer treated as permanently excluded. The long-term goal 
 ### Prototype Isolation
 
 - Current `create.*` implementation is a discarded prototype.
-- Prototype code may be archived for reference outside the formal compile path.
+- Prototype code may be archived for reference only in a separate directory outside this Git repository.
 - Prototype classes, tests, textures, and notes do not count as ported status.
 - Formal porting status starts only when a unit has been checked against upstream source, adapted into the new structure, documented, and tested.
 
@@ -112,7 +112,7 @@ Phase A0 happens before Shaft.
 
 Required outcomes:
 
-- Archive discarded prototype implementation outside the formal compile path.
+- Archive discarded prototype implementation outside the Git repository and formal compile path.
 - Establish the read-only upstream Create 6.0.8 snapshot.
 - Establish porting documentation.
 - Establish registry-derived status table skeletons.
@@ -302,6 +302,6 @@ Create: Big Cannons, Create: Aeronautics, and other non-selected addon projects 
 - Phase labels are the project's milestone system; no separate 0.x/1.0 release policy is required right now.
 - A public release should aim for a broadly complete Create port, not a tiny preview that permanently narrows scope.
 - The first development priority is Phase A0, then Shaft, then Value Settings UI, then Creative Motor, then the Creative Motor -> Shaft closure.
-- The current repository has uncommitted prototype changes. They should be preserved or archived carefully, not treated as authoritative source.
+- Historical prototype changes are preserved in a separate external archive and must not be reintroduced into the Git repository as formal source.
 - If upstream source cannot be downloaded by the agent due to network restrictions, the user may add the upstream snapshot manually.
 - The PRD replaces the previous "reference and rewrite" direction with an "adapt upstream source first" direction.

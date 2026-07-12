@@ -16,3 +16,5 @@ Create 6.0.8 is ported one block or item at a time. The active unit is the only 
 Run `powershell -ExecutionPolicy Bypass -File porting/tools/Generate-PortStatus.ps1` to regenerate the full upstream registry inventory.
 
 The first closure is Shaft, Value Settings, Creative Motor, then Creative Motor -> Shaft propagation.
+
+Historical prototypes must be stored outside this Git repository. The `prototype/` path is ignored intentionally and must not be used as a source, test, or asset directory.

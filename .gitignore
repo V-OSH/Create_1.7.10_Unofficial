@@ -60,6 +60,9 @@ logs/
 tmp/
 bin/
 
+# Historical prototypes are archived outside the Git repository.
+prototype/
+
 # Gradle 本地配置
 local.properties
 
