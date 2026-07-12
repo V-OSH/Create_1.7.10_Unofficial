@@ -49,6 +49,22 @@ class LegacyKineticNetworkTest {
         assertEquals(0f, world.speed(shaft));
     }
 
+    @Test
+    void meshedSmallCogwheelsReverseRotationWithoutChangingSpeed() {
+        MemoryNetwork world = new MemoryNetwork();
+        LegacyKineticNetwork.Position drivingCog = new LegacyKineticNetwork.Position(0, 0, 0);
+        LegacyKineticNetwork.Position drivenCog = new LegacyKineticNetwork.Position(1, 0, 0);
+        LegacyKineticNetwork.Position outputShaft = new LegacyKineticNetwork.Position(1, 1, 0);
+        world.put(drivingCog, Node.withModifiers(32f, ForgeDirection.EAST, -1));
+        world.put(drivenCog, Node.withModifiers(null, ForgeDirection.WEST, -1, ForgeDirection.UP, 1));
+        world.put(outputShaft, new Node(null, ForgeDirection.DOWN));
+
+        LegacyKineticNetwork.rebuildAt(world, drivingCog);
+
+        assertEquals(-32f, world.speed(drivenCog));
+        assertEquals(-32f, world.speed(outputShaft));
+    }
+
     private static final class MemoryNetwork implements LegacyKineticNetwork.NetworkView {
 
         private final Map<LegacyKineticNetwork.Position, Node> nodes = new HashMap<>();
@@ -85,6 +101,12 @@ class LegacyKineticNetworkTest {
         }
 
         @Override
+        public float speedModifier(LegacyKineticNetwork.Position position, ForgeDirection direction) {
+            Node node = nodes.get(position);
+            return node == null ? 0 : node.modifiers.getOrDefault(direction, 0f);
+        }
+
+        @Override
         public Float sourceSpeed(LegacyKineticNetwork.Position position) {
             return nodes.get(position).sourceSpeed;
         }
@@ -99,11 +121,25 @@ class LegacyKineticNetworkTest {
 
         private final Float sourceSpeed;
         private final ForgeDirection[] connections;
+        private final Map<ForgeDirection, Float> modifiers = new HashMap<>();
         private float speed;
 
         Node(Float sourceSpeed, ForgeDirection... connections) {
             this.sourceSpeed = sourceSpeed;
             this.connections = connections;
+            for (ForgeDirection connection : connections) {
+                modifiers.put(connection, 1f);
+            }
+        }
+
+        static Node withModifiers(Float sourceSpeed, Object... directionAndModifier) {
+            Node node = new Node(sourceSpeed);
+            for (int index = 0; index < directionAndModifier.length; index += 2) {
+                ForgeDirection direction = (ForgeDirection) directionAndModifier[index];
+                float modifier = ((Number) directionAndModifier[index + 1]).floatValue();
+                node.modifiers.put(direction, modifier);
+            }
+            return node;
         }
     }
 }

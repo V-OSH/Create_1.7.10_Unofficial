@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
+
 class KineticRenderMathTest {
 
     @Test
@@ -17,5 +19,11 @@ class KineticRenderMathTest {
     void matchesUpstreamTimeToAngleFormula() {
         assertEquals(48.0f, KineticRenderMath.angleDegrees(5, 0, 32), 0.0001f);
         assertEquals(52.8f, KineticRenderMath.angleDegrees(5, 0.5f, 32), 0.0001f);
+    }
+
+    @Test
+    void adjacentCogwheelsUseTheUpstreamHalfToothPhaseOffset() {
+        assertEquals(22.5f, KineticRenderMath.cogwheelOffsetDegrees(LegacyAxis.Y, 0, 0, 0), 0.0001f);
+        assertEquals(0f, KineticRenderMath.cogwheelOffsetDegrees(LegacyAxis.Y, 1, 0, 0), 0.0001f);
     }
 }

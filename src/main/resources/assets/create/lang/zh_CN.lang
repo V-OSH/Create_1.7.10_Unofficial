@@ -1,5 +1,6 @@
 tile.create.shaft.name=传动杆
 tile.create.creative_motor.name=创造马达
+tile.create.cogwheel.name=小齿轮
 itemGroup.create=机械动力
 gui.create.motor.title=创造马达转速
 gui.create.motor.counter_clockwise=逆时针

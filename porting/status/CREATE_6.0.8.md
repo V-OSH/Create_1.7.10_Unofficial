@@ -47,7 +47,7 @@ Total registry entries: 587
 | `CLIPBOARD` | planned-core | P1 | pending | pending | `AllBlocks.java:2254` |  |
 | `CLOCKWORK_BEARING` | planned-core | P3 | pending | pending | `AllBlocks.java:1195` |  |
 | `CLUTCH` | planned-core | P1 | pending | pending | `AllBlocks.java:474` |  |
-| `COGWHEEL` | planned-core | P1 | pending | pending | `AllBlocks.java:380` |  |
+| `COGWHEEL` | in-progress | P0 | pass | pending | `AllBlocks.java:380` | Small Cogwheel axial drive and equal-size reverse meshing |
 | `CONTRAPTION_CONTROLS` | planned-core | P3 | pending | pending | `AllBlocks.java:1328` |  |
 | `CONTROLLER_RAIL` | planned-core | P1 | pending | pending | `AllBlocks.java:1259` |  |
 | `COPPER_BACKTANK` | planned-core | P1 | pending | pending | `AllBlocks.java:2181` |  |

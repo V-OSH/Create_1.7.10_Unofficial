@@ -7,9 +7,11 @@ package com.simibubi.create.content.kinetics.base;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Map;
 
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -17,7 +19,7 @@ public final class LegacyKineticNetwork {
 
     public record Position(int x, int y, int z) {
 
-        Position offset(ForgeDirection direction) {
+        public Position offset(ForgeDirection direction) {
             return new Position(x + direction.offsetX, y + direction.offsetY, z + direction.offsetZ);
         }
     }
@@ -27,6 +29,10 @@ public final class LegacyKineticNetwork {
         boolean isKinetic(Position position);
 
         boolean connects(Position position, ForgeDirection direction);
+
+        default float speedModifier(Position position, ForgeDirection direction) {
+            return connects(position, direction) ? 1 : 0;
+        }
 
         Float sourceSpeed(Position position);
 
@@ -48,21 +54,25 @@ public final class LegacyKineticNetwork {
 
         List<Position> component = new ArrayList<>();
         Queue<Position> open = new ArrayDeque<>();
+        Map<Position, Float> factors = new HashMap<>();
         open.add(seed);
         visited.add(seed);
-        Float resolvedSpeed = null;
+        factors.put(seed, 1f);
+        Float resolvedRootSpeed = null;
         boolean conflictingSources = false;
 
         while (!open.isEmpty()) {
             Position current = open.remove();
             component.add(current);
+            float currentFactor = factors.get(current);
             Float sourceSpeed = view.sourceSpeed(current);
             if (sourceSpeed != null) {
-                if (resolvedSpeed == null || Math.abs(sourceSpeed) > Math.abs(resolvedSpeed)) {
-                    resolvedSpeed = sourceSpeed;
+                float candidateRootSpeed = sourceSpeed / currentFactor;
+                if (resolvedRootSpeed == null || Math.abs(candidateRootSpeed) > Math.abs(resolvedRootSpeed)) {
+                    resolvedRootSpeed = candidateRootSpeed;
                     conflictingSources = false;
-                } else if (Math.abs(sourceSpeed) == Math.abs(resolvedSpeed)
-                    && Float.compare(resolvedSpeed, sourceSpeed) != 0) {
+                } else if (Math.abs(candidateRootSpeed) == Math.abs(resolvedRootSpeed)
+                    && Float.compare(resolvedRootSpeed, candidateRootSpeed) != 0) {
                     conflictingSources = true;
                 }
             }
@@ -72,17 +82,21 @@ public final class LegacyKineticNetwork {
                 if (visited.contains(neighbour) || !view.isKinetic(neighbour)) {
                     continue;
                 }
-                if (!view.connects(current, direction) || !view.connects(neighbour, direction.getOpposite())) {
+                float forwardModifier = view.speedModifier(current, direction);
+                float backwardModifier = view.speedModifier(neighbour, direction.getOpposite());
+                if (forwardModifier == 0 || backwardModifier == 0
+                    || Math.abs(forwardModifier * backwardModifier - 1) > .0001f) {
                     continue;
                 }
                 visited.add(neighbour);
+                factors.put(neighbour, currentFactor * forwardModifier);
                 open.add(neighbour);
             }
         }
 
-        float speed = resolvedSpeed == null || conflictingSources ? 0 : resolvedSpeed;
+        float rootSpeed = resolvedRootSpeed == null || conflictingSources ? 0 : resolvedRootSpeed;
         for (Position position : component) {
-            view.setSpeed(position, speed);
+            view.setSpeed(position, rootSpeed * factors.get(position));
         }
     }
 

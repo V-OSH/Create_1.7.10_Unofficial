@@ -5,6 +5,8 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.base.LegacyKineticNetwork;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
+import com.simibubi.create.content.kinetics.simpleRelays.CogWheelBlock;
+import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
 
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
@@ -39,6 +41,28 @@ public final class LegacyKineticWorldAdapter implements LegacyKineticNetwork.Net
         Block block = world.getBlock(position.x(), position.y(), position.z());
         return block instanceof IRotate rotate
             && rotate.hasShaftTowards(world, position.x(), position.y(), position.z(), direction);
+    }
+
+    @Override
+    public float speedModifier(LegacyKineticNetwork.Position position, ForgeDirection direction) {
+        LegacyKineticNetwork.Position neighbour = position.offset(direction);
+        Block block = world.getBlock(position.x(), position.y(), position.z());
+        Block neighbourBlock = world.getBlock(neighbour.x(), neighbour.y(), neighbour.z());
+        if (!(block instanceof IRotate rotate) || !(neighbourBlock instanceof IRotate neighbourRotate)) {
+            return 0;
+        }
+        if (rotate.hasShaftTowards(world, position.x(), position.y(), position.z(), direction)
+            && neighbourRotate.hasShaftTowards(world, neighbour.x(), neighbour.y(), neighbour.z(),
+                direction.getOpposite())) {
+            return 1;
+        }
+        if (!(block instanceof CogWheelBlock cogwheel) || !(neighbourBlock instanceof CogWheelBlock neighbourCogwheel)) {
+            return 0;
+        }
+        LegacyAxis axis = cogwheel.getRotationAxis(world, position.x(), position.y(), position.z());
+        LegacyAxis neighbourAxis = neighbourCogwheel.getRotationAxis(world, neighbour.x(), neighbour.y(),
+            neighbour.z());
+        return axis == neighbourAxis && LegacyAxis.fromPlacementSide(direction.ordinal()) != axis ? -1 : 0;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.simibubi.create.foundation.utility.legacy.render;
 
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
+import com.simibubi.create.content.kinetics.simpleRelays.CogWheelBlock;
 import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
 
 import net.minecraft.block.Block;
@@ -21,12 +22,15 @@ public final class KineticShaftRenderer extends TileEntitySpecialRenderer {
             return;
         }
         Block block = kinetic.getBlockType();
-        if (!(block instanceof ShaftBlock shaft)) {
+        if (!(block instanceof ShaftBlock) && !(block instanceof CogWheelBlock)) {
             return;
         }
-        LegacyAxis axis = shaft.getRotationAxis(kinetic.getBlockMetadata());
+        LegacyAxis axis = block instanceof ShaftBlock shaft ? shaft.getRotationAxis(kinetic.getBlockMetadata())
+            : ((CogWheelBlock) block).getRotationAxis(kinetic.getBlockMetadata());
+        float offset = block instanceof CogWheelBlock
+            ? KineticRenderMath.cogwheelOffsetDegrees(axis, kinetic.xCoord, kinetic.yCoord, kinetic.zCoord) : 0;
         float angle = KineticRenderMath.angleDegrees(kinetic.getWorldObj().getTotalWorldTime(), partialTicks,
-            kinetic.getSpeed());
+            kinetic.getSpeed(), offset);
 
         bindTexture(TextureMap.locationBlocksTexture);
         GL11.glPushMatrix();
@@ -35,7 +39,13 @@ public final class KineticShaftRenderer extends TileEntitySpecialRenderer {
         GL11.glRotatef(angle, 0, 1, 0);
         GL11.glTranslatef(-.5f, -.5f, -.5f);
         GL11.glColor4f(1, 1, 1, 1);
-        renderShaft(kinetic, shaft);
+        if (block instanceof ShaftBlock shaft) {
+            renderShaft(kinetic, shaft);
+        } else {
+            int brightness = block.getMixedBrightnessForBlock(kinetic.getWorldObj(), kinetic.xCoord, kinetic.yCoord,
+                kinetic.zCoord);
+            CogWheelModelRenderer.render((CogWheelBlock) block, brightness);
+        }
         GL11.glPopMatrix();
     }
 

@@ -1,5 +1,6 @@
 kind,symbol,status,priority,automated,manual,notes
 block,SHAFT,in-progress,P1,pass,pending,First formal block port; manual checklist remains open
 block,CREATIVE_MOTOR,in-progress,P0,pass,pending,First kinetic source and Value Settings fallback
+block,COGWHEEL,in-progress,P0,pass,pending,Small Cogwheel axial drive and equal-size reverse meshing
 block_entity,BRACKETED_KINETIC,in-progress,P1,pass,pending,Reduced to simple kinetic state until brackets are ported
 block_entity,MOTOR,in-progress,P0,pass,pending,Persists generated speed and drives the minimal legacy kinetic network
