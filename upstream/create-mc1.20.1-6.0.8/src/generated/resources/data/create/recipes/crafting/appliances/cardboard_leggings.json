@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": {
+      "item": "create:cardboard"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "P P",
+    "P P"
+  ],
+  "result": {
+    "item": "create:cardboard_leggings"
+  },
+  "show_notification": true
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "tag": "forge:dyes/orange"
+    },
+    {
+      "tag": "create:dyed_table_cloths"
+    }
+  ],
+  "result": {
+    "item": "create:orange_table_cloth"
+  }
+}

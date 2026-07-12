@@ -1,0 +1,17 @@
+{
+  "type": "create:deploying",
+  "ingredients": [
+    {
+      "item": "create:exposed_copper_tile_stairs"
+    },
+    {
+      "tag": "minecraft:axes"
+    }
+  ],
+  "keepHeldItem": true,
+  "results": [
+    {
+      "item": "create:copper_tile_stairs"
+    }
+  ]
+}

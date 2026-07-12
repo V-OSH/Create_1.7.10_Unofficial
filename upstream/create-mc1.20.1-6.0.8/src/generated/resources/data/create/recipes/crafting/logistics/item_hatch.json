@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "create:andesite_alloy"
+    },
+    {
+      "item": "minecraft:iron_trapdoor"
+    }
+  ],
+  "result": {
+    "item": "create:item_hatch"
+  }
+}

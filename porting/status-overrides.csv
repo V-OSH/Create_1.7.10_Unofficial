@@ -1,0 +1,3 @@
+kind,symbol,status,priority,automated,manual,notes
+block,SHAFT,in-progress,P0,pass,pending,First formal block port
+block_entity,BRACKETED_KINETIC,in-progress,P0,pass,pending,Reduced to simple kinetic state until brackets are ported

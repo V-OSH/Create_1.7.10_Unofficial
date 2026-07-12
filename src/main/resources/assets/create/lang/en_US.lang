@@ -1,14 +1,2 @@
+tile.create.shaft.name=Shaft
 itemGroup.create=Create
-
-tile.create:shaft.name=Shaft
-tile.create:cogwheel.name=Cogwheel
-tile.create:large_cogwheel.name=Large Cogwheel
-tile.create:millstone.name=Millstone
-tile.create:drill.name=Mechanical Drill
-tile.create:encased_fan.name=Encased Fan
-tile.create:creative_motor.name=Creative Motor
-tile.create:water_wheel.name=Water Wheel
-tile.create:belt.name=Mechanical Belt
-
-item.create.andesite_alloy.name=Andesite Alloy
-item.create.belt_connector.name=Mechanical Belt
