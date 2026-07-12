@@ -45,9 +45,9 @@ public final class CogWheelModel {
         return DATA.elements();
     }
 
-    public static double textureCoordinateScale() {
-        // Blockbench's texture_size is editor metadata; Minecraft model UVs remain in the 0..16 domain.
-        return 1;
+    public static double textureCoordinateScale(Texture texture) {
+        // The model mixes a 32px gear sheet with 16px shaft sheets in one face-UV coordinate space.
+        return texture == Texture.COGWHEEL ? .5 : 1;
     }
 
     private static ModelData load() {

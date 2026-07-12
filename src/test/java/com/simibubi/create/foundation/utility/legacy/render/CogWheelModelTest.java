@@ -14,11 +14,13 @@ class CogWheelModelTest {
     }
 
     @Test
-    void keepsTheUpstreamToothOverhangAndMinecraftUvScale() {
+    void keepsTheUpstreamToothOverhangAndPerTextureUvScale() {
         CogWheelModel.Cuboid teeth = CogWheelModel.elements().get(1).bounds();
 
         assertEquals(-1.0 / 16, teeth.minX(), 0.0001);
         assertEquals(17.0 / 16, teeth.maxX(), 0.0001);
-        assertEquals(1.0, CogWheelModel.textureCoordinateScale(), 0.0001);
+        assertEquals(0.5, CogWheelModel.textureCoordinateScale(CogWheelModel.Texture.COGWHEEL), 0.0001);
+        assertEquals(1.0, CogWheelModel.textureCoordinateScale(CogWheelModel.Texture.AXIS), 0.0001);
+        assertEquals(1.0, CogWheelModel.textureCoordinateScale(CogWheelModel.Texture.AXIS_TOP), 0.0001);
     }
 }
