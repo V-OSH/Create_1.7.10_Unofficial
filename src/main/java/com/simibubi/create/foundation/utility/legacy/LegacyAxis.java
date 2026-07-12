@@ -5,8 +5,8 @@ package com.simibubi.create.foundation.utility.legacy;
  */
 public enum LegacyAxis {
     Y(0),
-    X(1),
-    Z(2);
+    X(4),
+    Z(8);
 
     private final int metadata;
 
@@ -19,6 +19,13 @@ public enum LegacyAxis {
     }
 
     public static LegacyAxis fromMetadata(int metadata) {
+        // Development builds before the axis-aware UV bridge stored X and Z as 1 and 2.
+        if (metadata == 1) {
+            return X;
+        }
+        if (metadata == 2) {
+            return Z;
+        }
         for (LegacyAxis axis : values()) {
             if (axis.metadata == metadata) {
                 return axis;

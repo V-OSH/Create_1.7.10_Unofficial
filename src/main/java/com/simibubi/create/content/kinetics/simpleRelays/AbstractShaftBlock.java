@@ -10,6 +10,7 @@ import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -18,9 +19,10 @@ public abstract class AbstractShaftBlock extends KineticBlock {
 
     protected AbstractShaftBlock() {
         super(Material.rock);
-        setHardness(3.0f);
+        setHardness(1.5f);
         setResistance(6.0f);
         setStepSound(soundTypeStone);
+        setHarvestLevel("pickaxe", 0);
     }
 
     @Override
@@ -58,6 +60,26 @@ public abstract class AbstractShaftBlock extends KineticBlock {
     @Override
     public void setBlockBoundsForItemRender() {
         setShaftBounds(LegacyAxis.Y);
+    }
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+        return createInteractionBounds(getRotationAxis(world, x, y, z), x, y, z);
+    }
+
+    @Override
+    public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z) {
+        return createInteractionBounds(getRotationAxis(world, x, y, z), x, y, z);
+    }
+
+    static AxisAlignedBB createInteractionBounds(LegacyAxis axis, int x, int y, int z) {
+        double min = 5.0 / 16.0;
+        double max = 11.0 / 16.0;
+        return switch (axis) {
+            case X -> AxisAlignedBB.getBoundingBox(x, y + min, z + min, x + 1, y + max, z + max);
+            case Y -> AxisAlignedBB.getBoundingBox(x + min, y, z + min, x + max, y + 1, z + max);
+            case Z -> AxisAlignedBB.getBoundingBox(x + min, y + min, z, x + max, y + max, z + 1);
+        };
     }
 
     private void setShaftBounds(LegacyAxis axis) {

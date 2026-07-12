@@ -22,18 +22,28 @@ All paths are relative to `upstream/create-mc1.20.1-6.0.8/src/main/`.
 
 ## 1.7.10 adaptations
 
-- Modern `Direction.Axis` block state is encoded as metadata by `LegacyAxis`.
+- Modern `Direction.Axis` block state is encoded as metadata by `LegacyAxis`; values `0`, `4`, and `8` deliberately
+  reuse Minecraft 1.7.10's log-renderer axis bits so horizontal side UVs rotate correctly.
+  Earlier development metadata `1` and `2` remains readable as X and Z, but those already-placed shafts must be
+  replaced once to rewrite the UV rotation bits.
+- `ShaftItemBlock` adapts `RotatedPillarKineticBlock` placement before the block enters the world: connected kinetic
+  neighbours provide the preferred axis, otherwise the player's nearest look axis is used, while sneaking overrides
+  a neighbour preference with the clicked-face axis.
 - Modern block entity registration is bridged through `GameRegistry`.
-- The modern voxel model is represented by axis-sensitive block bounds and legacy icons.
+- The four-voxel visual model uses axis-sensitive render bounds and the vanilla log UV bridge. Collision and selection
+  separately use upstream's six-voxel pole shape.
 - Waterlogging, brackets, wrenching, pole placement assistance, encasing, Flywheel visuals, and Ponder are deferred to their own units.
 - `KineticBlockEntity` currently persists and synchronizes speed; full upstream network propagation arrives with the Creative Motor closure.
 
 ## Automated checks
 
 - [x] Every axis round-trips through metadata.
-- [x] Placement face selects the axis.
+- [x] Axis metadata drives the legacy log renderer's UV rotation.
+- [x] Placement follows upstream look-axis, connected-neighbour, and sneaking precedence.
 - [x] Shaft connections are exposed only on the two axis faces.
-- [x] Speed survives an NBT round trip through the registered tile entity.
+- [x] Visual and interaction bounds match upstream's four- and six-voxel shapes.
+- [x] Hardness and pickaxe harvesting match upstream's andesite-derived properties.
+- [x] Speed survives an NBT round trip reconstructed through the registered tile entity ID.
 
 ## Manual game checklist
 

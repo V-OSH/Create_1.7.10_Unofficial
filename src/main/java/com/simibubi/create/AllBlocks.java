@@ -5,6 +5,7 @@
 package com.simibubi.create;
 
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
+import com.simibubi.create.content.kinetics.simpleRelays.ShaftItemBlock;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 
@@ -19,7 +20,7 @@ public final class AllBlocks {
             return;
         }
         registered = true;
-        GameRegistry.registerBlock(SHAFT, "shaft");
+        GameRegistry.registerBlock(SHAFT, ShaftItemBlock.class, "shaft");
         SHAFT.setCreativeTab(AllCreativeModeTabs.BASE);
     }
 

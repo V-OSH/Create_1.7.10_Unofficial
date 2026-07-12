@@ -6,13 +6,18 @@
 package com.simibubi.create.content.kinetics.simpleRelays;
 
 import com.simibubi.create.Create;
+import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.Vec3;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class ShaftBlock extends AbstractSimpleShaftBlock {
 
@@ -29,6 +34,72 @@ public class ShaftBlock extends AbstractSimpleShaftBlock {
     public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ,
         int metadata) {
         return LegacyAxis.fromPlacementSide(side).getMetadata();
+    }
+
+    static LegacyAxis resolvePlacementAxis(LegacyAxis clickedAxis, LegacyAxis lookAxis, LegacyAxis preferredAxis,
+        boolean sneaking) {
+        if (preferredAxis != null) {
+            return sneaking ? clickedAxis : preferredAxis;
+        }
+        return lookAxis;
+    }
+
+    static LegacyAxis mergePreferredAxis(LegacyAxis current, LegacyAxis candidate) {
+        if (current == null || current == candidate) {
+            return candidate;
+        }
+        return null;
+    }
+
+    static LegacyAxis getPreferredAxis(IBlockAccess world, int x, int y, int z) {
+        LegacyAxis preferredAxis = null;
+        for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
+            int neighbourX = x + direction.offsetX;
+            int neighbourY = y + direction.offsetY;
+            int neighbourZ = z + direction.offsetZ;
+            if (!(world.getBlock(neighbourX, neighbourY, neighbourZ) instanceof IRotate rotate)) {
+                continue;
+            }
+            if (!rotate.hasShaftTowards(world, neighbourX, neighbourY, neighbourZ, direction.getOpposite())) {
+                continue;
+            }
+
+            LegacyAxis candidate = LegacyAxis.fromPlacementSide(direction.ordinal());
+            LegacyAxis merged = mergePreferredAxis(preferredAxis, candidate);
+            if (preferredAxis != null && merged == null) {
+                return null;
+            }
+            preferredAxis = merged;
+        }
+        return preferredAxis;
+    }
+
+    static LegacyAxis getLookAxis(EntityLivingBase placer, LegacyAxis fallback) {
+        if (placer == null) {
+            return fallback;
+        }
+        Vec3 look = placer.getLookVec();
+        double x = Math.abs(look.xCoord);
+        double y = Math.abs(look.yCoord);
+        double z = Math.abs(look.zCoord);
+        if (x >= y && x >= z) {
+            return LegacyAxis.X;
+        }
+        if (z >= y) {
+            return LegacyAxis.Z;
+        }
+        return LegacyAxis.Y;
+    }
+
+    @Override
+    public int getRenderType() {
+        // Vanilla's log renderer rotates side UVs for metadata axis bits 0, 4, and 8.
+        return 31;
+    }
+
+    @Override
+    public int damageDropped(int metadata) {
+        return 0;
     }
 
     @Override

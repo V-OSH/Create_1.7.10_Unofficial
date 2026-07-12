@@ -14,6 +14,19 @@ class LegacyAxisTest {
     }
 
     @Test
+    void metadataUsesVanillaLogAxisBitsForUvRotation() {
+        assertEquals(0, LegacyAxis.Y.getMetadata());
+        assertEquals(4, LegacyAxis.X.getMetadata());
+        assertEquals(8, LegacyAxis.Z.getMetadata());
+    }
+
+    @Test
+    void readsAxisMetadataFromEarlierDevelopmentWorlds() {
+        assertEquals(LegacyAxis.X, LegacyAxis.fromMetadata(1));
+        assertEquals(LegacyAxis.Z, LegacyAxis.fromMetadata(2));
+    }
+
+    @Test
     void placementFaceSelectsTheShaftAxis() {
         assertEquals(LegacyAxis.Y, LegacyAxis.fromPlacementSide(0));
         assertEquals(LegacyAxis.Y, LegacyAxis.fromPlacementSide(1));
