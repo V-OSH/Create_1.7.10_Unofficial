@@ -8,7 +8,6 @@ import com.simibubi.create.foundation.utility.legacy.render.CogWheelModel.Direct
 import com.simibubi.create.foundation.utility.legacy.render.CogWheelModel.Element;
 import com.simibubi.create.foundation.utility.legacy.render.CogWheelModel.Face;
 import com.simibubi.create.foundation.utility.legacy.render.CogWheelModel.Rotation;
-import com.simibubi.create.foundation.utility.legacy.render.CogWheelModel.Uv;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.IIcon;
@@ -28,9 +27,7 @@ public final class CogWheelModelRenderer {
 
     private static void drawFace(CogWheelBlock block, int brightness, double[][] vertices, Face face) {
         Tessellator tessellator = Tessellator.instance;
-        Uv faceUv = CogWheelModel.shrinkUv(face.uv(), face.texture());
-        double[][] uv = {{faceUv.minU(), faceUv.maxV()}, {faceUv.maxU(), faceUv.maxV()},
-            {faceUv.maxU(), faceUv.minV()}, {faceUv.minU(), faceUv.minV()}};
+        double[][] uv = CogWheelModel.uvCorners(face);
         int shift = Math.floorMod(face.rotation() / 90, 4);
         double[] normal = normal(vertices);
         IIcon icon = icon(block, face.texture());
@@ -90,24 +87,24 @@ public final class CogWheelModelRenderer {
         return new double[] {x / length, y / length, z / length};
     }
 
-    private static double[][] vertices(Cuboid box, Direction direction) {
+    static double[][] vertices(Cuboid box, Direction direction) {
         return switch (direction) {
             case DOWN -> new double[][] {{box.minX(), box.minY(), box.maxZ()}, {box.minX(), box.minY(), box.minZ()},
                 {box.maxX(), box.minY(), box.minZ()}, {box.maxX(), box.minY(), box.maxZ()}};
             case UP -> new double[][] {{box.minX(), box.maxY(), box.minZ()}, {box.minX(), box.maxY(), box.maxZ()},
                 {box.maxX(), box.maxY(), box.maxZ()}, {box.maxX(), box.maxY(), box.minZ()}};
-            case NORTH -> new double[][] {{box.maxX(), box.minY(), box.minZ()},
-                {box.minX(), box.minY(), box.minZ()}, {box.minX(), box.maxY(), box.minZ()},
-                {box.maxX(), box.maxY(), box.minZ()}};
-            case SOUTH -> new double[][] {{box.minX(), box.minY(), box.maxZ()},
-                {box.maxX(), box.minY(), box.maxZ()}, {box.maxX(), box.maxY(), box.maxZ()},
-                {box.minX(), box.maxY(), box.maxZ()}};
-            case WEST -> new double[][] {{box.minX(), box.minY(), box.minZ()},
-                {box.minX(), box.minY(), box.maxZ()}, {box.minX(), box.maxY(), box.maxZ()},
+            case NORTH -> new double[][] {{box.maxX(), box.maxY(), box.minZ()},
+                {box.maxX(), box.minY(), box.minZ()}, {box.minX(), box.minY(), box.minZ()},
                 {box.minX(), box.maxY(), box.minZ()}};
-            case EAST -> new double[][] {{box.maxX(), box.minY(), box.maxZ()},
-                {box.maxX(), box.minY(), box.minZ()}, {box.maxX(), box.maxY(), box.minZ()},
+            case SOUTH -> new double[][] {{box.minX(), box.maxY(), box.maxZ()},
+                {box.minX(), box.minY(), box.maxZ()}, {box.maxX(), box.minY(), box.maxZ()},
                 {box.maxX(), box.maxY(), box.maxZ()}};
+            case WEST -> new double[][] {{box.minX(), box.maxY(), box.minZ()},
+                {box.minX(), box.minY(), box.minZ()}, {box.minX(), box.minY(), box.maxZ()},
+                {box.minX(), box.maxY(), box.maxZ()}};
+            case EAST -> new double[][] {{box.maxX(), box.maxY(), box.maxZ()},
+                {box.maxX(), box.minY(), box.maxZ()}, {box.maxX(), box.minY(), box.minZ()},
+                {box.maxX(), box.maxY(), box.minZ()}};
         };
     }
 }

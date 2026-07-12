@@ -38,4 +38,37 @@ class CogWheelModelTest {
         assertEquals(2, axisResult.minV(), 0.0001);
         assertEquals(14, axisResult.maxV(), 0.0001);
     }
+
+    @Test
+    void assignsUvCornersInVanillaBlockFaceUvOrder() {
+        CogWheelModel.Face face = new CogWheelModel.Face(CogWheelModel.Texture.COGWHEEL,
+            new CogWheelModel.Uv(7, 8, 16, 9.5), 0);
+        double[][] corners = CogWheelModel.uvCorners(face);
+
+        assertCorner(corners[0], 7.5625, 8.09375);
+        assertCorner(corners[1], 7.5625, 9.40625);
+        assertCorner(corners[2], 15.4375, 9.40625);
+        assertCorner(corners[3], 15.4375, 8.09375);
+    }
+
+    @Test
+    void ordersSideVerticesLikeVanillaFaceInfo() {
+        CogWheelModel.Cuboid box = new CogWheelModel.Cuboid(1, 2, 3, 4, 5, 6);
+
+        assertVertex(CogWheelModelRenderer.vertices(box, CogWheelModel.Direction.NORTH)[0], 4, 5, 3);
+        assertVertex(CogWheelModelRenderer.vertices(box, CogWheelModel.Direction.SOUTH)[0], 1, 5, 6);
+        assertVertex(CogWheelModelRenderer.vertices(box, CogWheelModel.Direction.WEST)[0], 1, 5, 3);
+        assertVertex(CogWheelModelRenderer.vertices(box, CogWheelModel.Direction.EAST)[0], 4, 5, 6);
+    }
+
+    private static void assertCorner(double[] corner, double expectedU, double expectedV) {
+        assertEquals(expectedU, corner[0], 0.0001);
+        assertEquals(expectedV, corner[1], 0.0001);
+    }
+
+    private static void assertVertex(double[] vertex, double expectedX, double expectedY, double expectedZ) {
+        assertEquals(expectedX, vertex[0], 0.0001);
+        assertEquals(expectedY, vertex[1], 0.0001);
+        assertEquals(expectedZ, vertex[2], 0.0001);
+    }
 }

@@ -37,8 +37,9 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
   `"texture_size": [32, 32]`, vanilla's `BlockModel` ignores that metadata: all face UVs remain in the standard 0-16
   domain, including the 32x32 `cogwheel.png`. The legacy TESR also mirrors `FaceBakery`'s per-face UV shrink
   (`4 / sprite pixel width`) before atlas interpolation to prevent the narrow tooth faces from sampling over their
-  borders. It then applies per-face UV rotations, element rotations, and the upstream position-dependent 22.5-degree
-  half-tooth phase.
+  borders. Quad vertices follow vanilla `FaceInfo` order and UV corners follow `BlockFaceUV` order; keeping both in
+  the same coordinate order prevents an unintended 90-degree texture turn on the horizontal tooth faces. It then
+  applies per-face UV rotations, element rotations, and the upstream position-dependent 22.5-degree half-tooth phase.
 - Collision uses the upstream union of a six-voxel pole and the 12x4x12 small-gear body. Minecraft 1.7.10 selection
   outlines cannot express the union, so the selected outline is its axis-oriented enclosing box.
 - `LegacyKineticNetwork` now assigns a speed multiplier to every edge. Shaft connections use `+1`; adjacent small
@@ -54,7 +55,8 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
 - [x] Selection covers both the gear body and its full axial Shaft.
 - [x] Adjacent parallel small Cogwheels reverse signed speed without changing its magnitude.
 - [x] Shaft transmission after a meshed Cogwheel retains the reversed speed.
-- [x] Original model element count, tooth overhang, vanilla UV domain/shrink, and +/-45-degree teeth are preserved.
+- [x] Original model element count, tooth overhang, vanilla vertex/UV order and shrink, and +/-45-degree teeth are
+  preserved.
 - [x] Adjacent Cogwheels receive upstream's alternating 22.5-degree tooth phase.
 - [x] Existing Motor-to-Shaft propagation and source-conflict tests remain green.
 
