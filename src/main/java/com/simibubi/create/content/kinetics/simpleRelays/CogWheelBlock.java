@@ -12,13 +12,15 @@ import com.simibubi.create.foundation.utility.legacy.kinetics.LegacyKineticWorld
 import net.minecraft.world.World;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import java.util.List;
 
-public class CogWheelBlock extends AbstractSimpleShaftBlock {
+public class CogWheelBlock extends AbstractSimpleShaftBlock implements ICogWheel {
 
     private static int renderType = -1;
     @SideOnly(Side.CLIENT)
@@ -30,6 +32,7 @@ public class CogWheelBlock extends AbstractSimpleShaftBlock {
 
     public CogWheelBlock() {
         setBlockName(Create.ID + ".cogwheel");
+        setStepSound(soundTypeWood);
     }
 
     @Override
@@ -51,6 +54,26 @@ public class CogWheelBlock extends AbstractSimpleShaftBlock {
 
     public static void setRenderType(int id) {
         renderType = id;
+    }
+
+    @Override
+    public boolean isDedicatedCogWheel() {
+        return true;
+    }
+
+    @Override
+    public boolean isToolEffective(String type, int metadata) {
+        return "axe".equals(type) || "pickaxe".equals(type);
+    }
+
+    @Override
+    public boolean canHarvestBlock(EntityPlayer player, int metadata) {
+        ItemStack heldItem = player == null ? null : player.getCurrentEquippedItem();
+        if (heldItem != null && (heldItem.getItem().getHarvestLevel(heldItem, "axe") >= 0
+            || heldItem.getItem().getHarvestLevel(heldItem, "pickaxe") >= 0)) {
+            return true;
+        }
+        return super.canHarvestBlock(player, metadata);
     }
 
     @Override

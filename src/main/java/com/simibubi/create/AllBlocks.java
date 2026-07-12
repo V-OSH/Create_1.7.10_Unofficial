@@ -12,9 +12,8 @@ import com.simibubi.create.foundation.utility.legacy.block.ShaftItemBlock;
 import com.simibubi.create.foundation.utility.legacy.block.CogWheelItemBlock;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 public final class AllBlocks {
 
@@ -35,8 +34,7 @@ public final class AllBlocks {
         SHAFT.setCreativeTab(AllCreativeModeTabs.BASE);
         COGWHEEL.setCreativeTab(AllCreativeModeTabs.BASE);
         CREATIVE_MOTOR.setCreativeTab(AllCreativeModeTabs.BASE);
-        GameRegistry.addShapelessRecipe(new ItemStack(COGWHEEL), new ItemStack(SHAFT),
-            new ItemStack(Blocks.planks, 1, OreDictionary.WILDCARD_VALUE));
+        GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(COGWHEEL), new ItemStack(SHAFT), "plankWood"));
     }
 
     private AllBlocks() {}

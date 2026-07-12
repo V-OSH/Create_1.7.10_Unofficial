@@ -1,3 +1,7 @@
+/*
+ * Legacy placement bridge adapted from Create 6.0.8's CogwheelBlockItem.
+ * Create is Copyright (c) simibubi and contributors, licensed under the MIT License.
+ */
 package com.simibubi.create.foundation.utility.legacy.block;
 
 import com.simibubi.create.content.kinetics.simpleRelays.CogWheelBlock;

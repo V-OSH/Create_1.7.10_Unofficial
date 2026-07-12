@@ -40,4 +40,13 @@ class CogWheelBlockTest {
         assertEquals(2.0 / 16, bounds.minZ);
         assertEquals(14.0 / 16, bounds.maxZ);
     }
+
+    @Test
+    void usesUpstreamWoodSoundsAndAcceptsAxeOrPickaxe() {
+        CogWheelBlock cogwheel = new CogWheelBlock();
+
+        assertEquals("dig.wood", cogwheel.stepSound.getBreakSound());
+        assertEquals(true, cogwheel.isToolEffective("axe", 0));
+        assertEquals(true, cogwheel.isToolEffective("pickaxe", 0));
+    }
 }

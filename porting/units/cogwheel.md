@@ -7,12 +7,15 @@ Priority: `P0`
 ## Upstream trace
 
 - `com/simibubi/create/AllBlocks.java` (`COGWHEEL`)
+- `com/simibubi/create/AllShapes.java` (`SMALL_GEAR`, `SIX_VOXEL_POLE`)
+- `content/kinetics/RotationPropagator.java`
 - `content/kinetics/base/KineticBlockEntity.java`
 - `content/kinetics/base/KineticBlockEntityVisual.java`
 - `content/kinetics/base/RotatedPillarKineticBlock.java`
 - `content/kinetics/simpleRelays/AbstractShaftBlock.java`
 - `content/kinetics/simpleRelays/AbstractSimpleShaftBlock.java`
 - `content/kinetics/simpleRelays/CogWheelBlock.java`
+- `content/kinetics/simpleRelays/CogwheelBlockItem.java`
 - `content/kinetics/simpleRelays/ICogWheel.java`
 - `assets/create/models/block/cogwheel.json`
 - `assets/create/textures/block/cogwheel.png`
@@ -28,12 +31,15 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
   selects the clicked-face axis, otherwise a clicked Cogwheel axis wins, followed by a connected Shaft preference and
   finally the clicked-face axis.
 - `CogWheelItemBlock` resolves placement before the block enters the world and triggers the legacy kinetic rebuild.
+  Upstream placement helpers depend on modern ray/context APIs, so the 1.7.10 adapter currently preserves direct
+  clicked-Cogwheel alignment while its multi-placement assistance remains deferred.
 - The unchanged upstream seven-element JSON model is parsed once. The legacy TESR applies its 32x32 UV scale,
   per-face UV rotations, element rotations, and the upstream position-dependent 22.5-degree half-tooth phase.
 - Collision uses the upstream union of a six-voxel pole and the 12x4x12 small-gear body. Minecraft 1.7.10 selection
   outlines cannot express the union, so the selected outline is its axis-oriented enclosing box.
 - `LegacyKineticNetwork` now assigns a speed multiplier to every edge. Shaft connections use `+1`; adjacent small
   Cogwheels with equal, parallel axes mesh on a perpendicular side with `-1`.
+- `ICogWheel` is retained as the shared upstream seam for later Large and encased variants.
 - Large Cogwheel ratios, diagonal small/large engagement, encasing, brackets, waterlogging, wrenching, contraption
   behavior, stress impact, and the shifting-gears advancement remain in their own later units.
 

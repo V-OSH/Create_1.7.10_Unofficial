@@ -5,7 +5,7 @@ import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.content.kinetics.base.LegacyKineticNetwork;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
-import com.simibubi.create.content.kinetics.simpleRelays.CogWheelBlock;
+import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
 import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
 
 import net.minecraft.block.Block;
@@ -56,12 +56,11 @@ public final class LegacyKineticWorldAdapter implements LegacyKineticNetwork.Net
                 direction.getOpposite())) {
             return 1;
         }
-        if (!(block instanceof CogWheelBlock cogwheel) || !(neighbourBlock instanceof CogWheelBlock neighbourCogwheel)) {
+        if (!ICogWheel.isSmallCog(block) || !ICogWheel.isSmallCog(neighbourBlock)) {
             return 0;
         }
-        LegacyAxis axis = cogwheel.getRotationAxis(world, position.x(), position.y(), position.z());
-        LegacyAxis neighbourAxis = neighbourCogwheel.getRotationAxis(world, neighbour.x(), neighbour.y(),
-            neighbour.z());
+        LegacyAxis axis = rotate.getRotationAxis(world, position.x(), position.y(), position.z());
+        LegacyAxis neighbourAxis = neighbourRotate.getRotationAxis(world, neighbour.x(), neighbour.y(), neighbour.z());
         return axis == neighbourAxis && LegacyAxis.fromPlacementSide(direction.ordinal()) != axis ? -1 : 0;
     }
 
