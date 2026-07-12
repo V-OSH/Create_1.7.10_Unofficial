@@ -1,4 +1,4 @@
-package com.simibubi.create.foundation.networking;
+package com.simibubi.create.foundation.utility.legacy.networking;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

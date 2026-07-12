@@ -163,7 +163,7 @@ Total registry entries: 587
 | `SECONDARY_LINEAR_CHASSIS` | planned-core | P3 | pending | pending | `AllBlocks.java:1292` |  |
 | `SEQUENCED_GEARSHIFT` | planned-core | P1 | pending | pending | `AllBlocks.java:1554` |  |
 | `SHADOW_STEEL_CASING` | planned-core | P1 | pending | pending | `AllBlocks.java:1525` |  |
-| `SHAFT` | in-progress | P0 | pass | pending | `AllBlocks.java:370` | First formal block port |
+| `SHAFT` | in-progress | P1 | pass | pending | `AllBlocks.java:370` | First formal block port; manual checklist remains open |
 | `SMALL_BOGEY` | planned-late | P5 | pending | pending | `AllBlocks.java:1688` |  |
 | `SMALL_ROSE_QUARTZ_TILES` | planned-late | P6 | pending | pending | `AllBlocks.java:2661` |  |
 | `SMART_CHUTE` | planned-core | P1 | pending | pending | `AllBlocks.java:821` |  |
@@ -208,7 +208,7 @@ Total registry entries: 587
 | `BASIN` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:743` |  |
 | `BELT` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:449` |  |
 | `BOGEY` | planned-late | P5 | pending | pending | `AllBlockEntityTypes.java:949` |  |
-| `BRACKETED_KINETIC` | in-progress | P0 | pass | pending | `AllBlockEntityTypes.java:254` | Reduced to simple kinetic state until brackets are ported |
+| `BRACKETED_KINETIC` | in-progress | P1 | pass | pending | `AllBlockEntityTypes.java:254` | Reduced to simple kinetic state until brackets are ported |
 | `BRASS_TUNNEL` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:475` |  |
 | `CART_ASSEMBLER` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:810` |  |
 | `CHAIN_CONVEYOR` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:374` |  |

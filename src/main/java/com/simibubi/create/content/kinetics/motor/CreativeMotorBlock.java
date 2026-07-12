@@ -7,8 +7,8 @@ package com.simibubi.create.content.kinetics.motor;
 import com.simibubi.create.Create;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.content.kinetics.base.KineticBlock;
-import com.simibubi.create.content.kinetics.base.LegacyKineticNetwork;
 import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
+import com.simibubi.create.foundation.utility.legacy.kinetics.LegacyKineticWorldAdapter;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
@@ -91,6 +92,18 @@ public class CreativeMotorBlock extends KineticBlock {
         setMotorBounds(ForgeDirection.SOUTH);
     }
 
+    @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+        setMotorBounds(getFacing(world.getBlockMetadata(x, y, z)));
+        return super.getCollisionBoundingBoxFromPool(world, x, y, z);
+    }
+
+    @Override
+    public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z) {
+        setMotorBounds(getFacing(world.getBlockMetadata(x, y, z)));
+        return super.getSelectedBoundingBoxFromPool(world, x, y, z);
+    }
+
     void setMotorBounds(ForgeDirection facing) {
         float min = 3.0f / 16.0f;
         float max = 13.0f / 16.0f;
@@ -116,14 +129,15 @@ public class CreativeMotorBlock extends KineticBlock {
         return true;
     }
 
-    static ForgeDirection resolvePlacementFacing(ForgeDirection look, ForgeDirection preferred, boolean sneaking) {
+    public static ForgeDirection resolvePlacementFacing(ForgeDirection look, ForgeDirection preferred,
+        boolean sneaking) {
         if (preferred != null && !sneaking) {
             return preferred;
         }
         return sneaking ? look : look.getOpposite();
     }
 
-    static ForgeDirection getPreferredFacing(IBlockAccess world, int x, int y, int z) {
+    public static ForgeDirection getPreferredFacing(IBlockAccess world, int x, int y, int z) {
         ForgeDirection preferred = null;
         for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
             int neighbourX = x + direction.offsetX;
@@ -143,7 +157,7 @@ public class CreativeMotorBlock extends KineticBlock {
         return preferred;
     }
 
-    static ForgeDirection getLookFacing(EntityLivingBase placer, ForgeDirection fallback) {
+    public static ForgeDirection getLookFacing(EntityLivingBase placer, ForgeDirection fallback) {
         if (placer == null) {
             return fallback;
         }
@@ -163,7 +177,7 @@ public class CreativeMotorBlock extends KineticBlock {
     @Override
     public void breakBlock(World world, int x, int y, int z, net.minecraft.block.Block block, int metadata) {
         super.breakBlock(world, x, y, z, block, metadata);
-        LegacyKineticNetwork.rebuildAt(world, x, y, z);
+        LegacyKineticWorldAdapter.rebuildAt(world, x, y, z);
     }
 
     @Override

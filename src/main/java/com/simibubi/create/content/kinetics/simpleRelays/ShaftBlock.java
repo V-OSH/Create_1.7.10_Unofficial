@@ -7,8 +7,8 @@ package com.simibubi.create.content.kinetics.simpleRelays;
 
 import com.simibubi.create.Create;
 import com.simibubi.create.content.kinetics.base.IRotate;
-import com.simibubi.create.content.kinetics.base.LegacyKineticNetwork;
 import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
+import com.simibubi.create.foundation.utility.legacy.kinetics.LegacyKineticWorldAdapter;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -37,7 +37,8 @@ public class ShaftBlock extends AbstractSimpleShaftBlock {
         return LegacyAxis.fromPlacementSide(side).getMetadata();
     }
 
-    static LegacyAxis resolvePlacementAxis(LegacyAxis clickedAxis, LegacyAxis lookAxis, LegacyAxis preferredAxis,
+    public static LegacyAxis resolvePlacementAxis(LegacyAxis clickedAxis, LegacyAxis lookAxis,
+        LegacyAxis preferredAxis,
         boolean sneaking) {
         if (preferredAxis != null) {
             return sneaking ? clickedAxis : preferredAxis;
@@ -52,7 +53,7 @@ public class ShaftBlock extends AbstractSimpleShaftBlock {
         return null;
     }
 
-    static LegacyAxis getPreferredAxis(IBlockAccess world, int x, int y, int z) {
+    public static LegacyAxis getPreferredAxis(IBlockAccess world, int x, int y, int z) {
         LegacyAxis preferredAxis = null;
         for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
             int neighbourX = x + direction.offsetX;
@@ -75,7 +76,7 @@ public class ShaftBlock extends AbstractSimpleShaftBlock {
         return preferredAxis;
     }
 
-    static LegacyAxis getLookAxis(EntityLivingBase placer, LegacyAxis fallback) {
+    public static LegacyAxis getLookAxis(EntityLivingBase placer, LegacyAxis fallback) {
         if (placer == null) {
             return fallback;
         }
@@ -106,7 +107,7 @@ public class ShaftBlock extends AbstractSimpleShaftBlock {
     @Override
     public void breakBlock(World world, int x, int y, int z, net.minecraft.block.Block block, int metadata) {
         super.breakBlock(world, x, y, z, block, metadata);
-        LegacyKineticNetwork.rebuildAt(world, x, y, z);
+        LegacyKineticWorldAdapter.rebuildAt(world, x, y, z);
     }
 
     @Override

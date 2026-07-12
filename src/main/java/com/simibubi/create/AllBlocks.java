@@ -5,9 +5,9 @@
 package com.simibubi.create;
 
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
-import com.simibubi.create.content.kinetics.simpleRelays.ShaftItemBlock;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
-import com.simibubi.create.content.kinetics.motor.CreativeMotorItemBlock;
+import com.simibubi.create.foundation.utility.legacy.block.CreativeMotorItemBlock;
+import com.simibubi.create.foundation.utility.legacy.block.ShaftItemBlock;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 

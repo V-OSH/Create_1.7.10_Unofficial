@@ -5,6 +5,8 @@
  */
 package com.simibubi.create.content.kinetics.base;
 
+import com.simibubi.create.foundation.utility.legacy.kinetics.LegacyKineticWorldAdapter;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -35,7 +37,7 @@ public class KineticBlockEntity extends TileEntity {
     public void updateEntity() {
         if (!networkInitialized && worldObj != null && !worldObj.isRemote) {
             networkInitialized = true;
-            LegacyKineticNetwork.rebuildAt(worldObj, xCoord, yCoord, zCoord);
+            LegacyKineticWorldAdapter.rebuildAt(worldObj, xCoord, yCoord, zCoord);
         }
     }
 

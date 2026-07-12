@@ -4,8 +4,10 @@
  */
 package com.simibubi.create;
 
-import com.simibubi.create.foundation.networking.MotorSpeedPacket;
+import com.simibubi.create.foundation.utility.legacy.networking.LegacyServerTaskQueue;
+import com.simibubi.create.foundation.utility.legacy.networking.MotorSpeedPacket;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
@@ -21,6 +23,7 @@ public final class AllPackets {
             return;
         }
         registered = true;
+        FMLCommonHandler.instance().bus().register(LegacyServerTaskQueue.INSTANCE);
         CHANNEL.registerMessage(MotorSpeedPacket.Handler.class, MotorSpeedPacket.class, 0, Side.SERVER);
     }
 

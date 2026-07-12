@@ -31,6 +31,24 @@ class LegacyKineticNetworkTest {
         assertEquals(0f, world.speed(secondShaft));
     }
 
+    @Test
+    void fasterSourceOverpowersSlowerSourceButEqualOppositesStop() {
+        MemoryNetwork world = new MemoryNetwork();
+        LegacyKineticNetwork.Position leftMotor = new LegacyKineticNetwork.Position(-1, 0, 0);
+        LegacyKineticNetwork.Position shaft = new LegacyKineticNetwork.Position(0, 0, 0);
+        LegacyKineticNetwork.Position rightMotor = new LegacyKineticNetwork.Position(1, 0, 0);
+        world.put(leftMotor, new Node(32f, ForgeDirection.EAST));
+        world.put(shaft, new Node(null, ForgeDirection.WEST, ForgeDirection.EAST));
+        world.put(rightMotor, new Node(-16f, ForgeDirection.WEST));
+
+        LegacyKineticNetwork.rebuildAt(world, shaft);
+        assertEquals(32f, world.speed(shaft));
+
+        world.put(rightMotor, new Node(-32f, ForgeDirection.WEST));
+        LegacyKineticNetwork.rebuildAt(world, shaft);
+        assertEquals(0f, world.speed(shaft));
+    }
+
     private static final class MemoryNetwork implements LegacyKineticNetwork.NetworkView {
 
         private final Map<LegacyKineticNetwork.Position, Node> nodes = new HashMap<>();

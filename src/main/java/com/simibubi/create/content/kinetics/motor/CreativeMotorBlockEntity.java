@@ -5,7 +5,7 @@
 package com.simibubi.create.content.kinetics.motor;
 
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
-import com.simibubi.create.content.kinetics.base.LegacyKineticNetwork;
+import com.simibubi.create.foundation.utility.legacy.kinetics.LegacyKineticWorldAdapter;
 
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -27,7 +27,7 @@ public class CreativeMotorBlockEntity extends KineticBlockEntity {
         }
         generatedSpeed = clampedSpeed;
         markDirty();
-        LegacyKineticNetwork.rebuildAt(worldObj, xCoord, yCoord, zCoord);
+        LegacyKineticWorldAdapter.rebuildAt(worldObj, xCoord, yCoord, zCoord);
         if (worldObj != null) {
             worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
         }

@@ -1,6 +1,6 @@
 package com.simibubi.create.foundation.utility.legacy;
 
-import com.simibubi.create.content.kinetics.motor.MotorValueSettingsScreen;
+import com.simibubi.create.foundation.utility.legacy.client.MotorValueSettingsScreen;
 
 import net.minecraft.client.Minecraft;
 

@@ -1,5 +1,5 @@
 /*
- * Legacy world adapter for the connectivity semantics of Create 6.0.8's TorquePropagator.
+ * Minimal connectivity and source arbitration adapted from Create 6.0.8's TorquePropagator.
  * Create is Copyright (c) simibubi and contributors, licensed under the MIT License.
  */
 package com.simibubi.create.content.kinetics.base;
@@ -11,12 +11,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
-import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
-
-import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public final class LegacyKineticNetwork {
@@ -37,13 +31,6 @@ public final class LegacyKineticNetwork {
         Float sourceSpeed(Position position);
 
         void setSpeed(Position position, float speed);
-    }
-
-    public static void rebuildAt(World world, int x, int y, int z) {
-        if (world == null || world.isRemote) {
-            return;
-        }
-        rebuildAt(new WorldNetworkView(world), new Position(x, y, z));
     }
 
     public static void rebuildAt(NetworkView view, Position changedPosition) {
@@ -71,10 +58,12 @@ public final class LegacyKineticNetwork {
             component.add(current);
             Float sourceSpeed = view.sourceSpeed(current);
             if (sourceSpeed != null) {
-                if (resolvedSpeed != null && Float.compare(resolvedSpeed, sourceSpeed) != 0) {
-                    conflictingSources = true;
-                } else {
+                if (resolvedSpeed == null || Math.abs(sourceSpeed) > Math.abs(resolvedSpeed)) {
                     resolvedSpeed = sourceSpeed;
+                    conflictingSources = false;
+                } else if (Math.abs(sourceSpeed) == Math.abs(resolvedSpeed)
+                    && Float.compare(resolvedSpeed, sourceSpeed) != 0) {
+                    conflictingSources = true;
                 }
             }
 
@@ -94,50 +83,6 @@ public final class LegacyKineticNetwork {
         float speed = resolvedSpeed == null || conflictingSources ? 0 : resolvedSpeed;
         for (Position position : component) {
             view.setSpeed(position, speed);
-        }
-    }
-
-    private static final class WorldNetworkView implements NetworkView {
-
-        private final World world;
-
-        WorldNetworkView(World world) {
-            this.world = world;
-        }
-
-        @Override
-        public boolean isKinetic(Position position) {
-            Block block = world.getBlock(position.x(), position.y(), position.z());
-            TileEntity tileEntity = world.getTileEntity(position.x(), position.y(), position.z());
-            return block instanceof IRotate && tileEntity instanceof KineticBlockEntity;
-        }
-
-        @Override
-        public boolean connects(Position position, ForgeDirection direction) {
-            Block block = world.getBlock(position.x(), position.y(), position.z());
-            return block instanceof IRotate rotate
-                && rotate.hasShaftTowards(world, position.x(), position.y(), position.z(), direction);
-        }
-
-        @Override
-        public Float sourceSpeed(Position position) {
-            TileEntity tileEntity = world.getTileEntity(position.x(), position.y(), position.z());
-            Block block = world.getBlock(position.x(), position.y(), position.z());
-            if (!(tileEntity instanceof CreativeMotorBlockEntity motor) || !(block instanceof CreativeMotorBlock)) {
-                return null;
-            }
-            ForgeDirection facing = ((CreativeMotorBlock) block)
-                .getFacing(world.getBlockMetadata(position.x(), position.y(), position.z()));
-            int directionSign = facing.offsetX + facing.offsetY + facing.offsetZ;
-            return (float) motor.getGeneratedSpeed() * (directionSign < 0 ? -1 : 1);
-        }
-
-        @Override
-        public void setSpeed(Position position, float speed) {
-            TileEntity tileEntity = world.getTileEntity(position.x(), position.y(), position.z());
-            if (tileEntity instanceof KineticBlockEntity kinetic) {
-                kinetic.setSpeed(speed);
-            }
         }
     }
 

@@ -2,10 +2,11 @@
  * Legacy ItemBlock bridge for Create 6.0.8's RotatedPillarKineticBlock placement policy.
  * Create is Copyright (c) simibubi and contributors, licensed under the MIT License.
  */
-package com.simibubi.create.content.kinetics.simpleRelays;
+package com.simibubi.create.foundation.utility.legacy.block;
 
+import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
 import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
-import com.simibubi.create.content.kinetics.base.LegacyKineticNetwork;
+import com.simibubi.create.foundation.utility.legacy.kinetics.LegacyKineticWorldAdapter;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,7 +31,7 @@ public class ShaftItemBlock extends ItemBlock {
         boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ,
             axis.getMetadata());
         if (placed) {
-            LegacyKineticNetwork.rebuildAt(world, x, y, z);
+            LegacyKineticWorldAdapter.rebuildAt(world, x, y, z);
         }
         return placed;
     }

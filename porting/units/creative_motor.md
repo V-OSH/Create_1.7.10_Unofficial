@@ -28,15 +28,18 @@ All paths are relative to `upstream/create-mc1.20.1-6.0.8/src/main/` unless gene
 ## 1.7.10 adaptations
 
 - Six-way facing is stored directly as `ForgeDirection` metadata.
-- `CreativeMotorItemBlock` computes the final state before placement. It prefers a connected kinetic neighbour and
+- Legacy adapter `foundation/utility/legacy/block/CreativeMotorItemBlock` computes the final state before placement.
+  It prefers a connected kinetic neighbour and
   otherwise follows upstream's player-look and sneaking rules.
 - The modern multipart model is temporarily represented by the upstream directional motor shape, original textures,
   and a legacy axis-aware cuboid. A dedicated ISBRH/TESR model remains a visual follow-up.
 - The world-space Value Settings board is temporarily represented by a non-pausing legacy screen with the same two
   direction rows and `1..256 RPM` range. This is the documented PRD fallback, not the final UI target.
-- `MotorSpeedPacket` is server-authoritative and validates distance, block identity, and tile entity type.
-- `LegacyKineticNetwork` provides the first minimal propagation seam. It covers aligned shaft networks, source speed
-  changes, disconnect clearing, and conflicting-source shutdown; gears, ratios, stress, and overload remain later work.
+- Legacy `MotorSpeedPacket` queues work onto the server tick before validating distance, block identity, and tile
+  entity type.
+- `LegacyKineticNetwork` provides the first minimal propagation seam, while `LegacyKineticWorldAdapter` isolates 1.7.10
+  world access. It covers aligned shaft networks, source speed changes, disconnect clearing, faster-source arbitration,
+  and equal-opposite shutdown; gears, ratios, stress, and overload remain later work.
 
 ## Automated checks
 

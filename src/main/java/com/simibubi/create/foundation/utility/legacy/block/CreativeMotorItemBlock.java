@@ -2,7 +2,10 @@
  * Legacy ItemBlock bridge for Create 6.0.8's directional motor placement policy.
  * Create is Copyright (c) simibubi and contributors, licensed under the MIT License.
  */
-package com.simibubi.create.content.kinetics.motor;
+package com.simibubi.create.foundation.utility.legacy.block;
+
+import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
+import com.simibubi.create.foundation.utility.legacy.kinetics.LegacyKineticWorldAdapter;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.simibubi.create.content.kinetics.base.LegacyKineticNetwork;
 
 public class CreativeMotorItemBlock extends ItemBlock {
 
@@ -30,7 +32,7 @@ public class CreativeMotorItemBlock extends ItemBlock {
         boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ,
             facing.ordinal());
         if (placed) {
-            LegacyKineticNetwork.rebuildAt(world, x, y, z);
+            LegacyKineticWorldAdapter.rebuildAt(world, x, y, z);
         }
         return placed;
     }

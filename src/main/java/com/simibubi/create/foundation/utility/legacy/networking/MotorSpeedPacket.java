@@ -2,7 +2,7 @@
  * Legacy network bridge adapted from Create 6.0.8's ValueSettingsPacket.
  * Create is Copyright (c) simibubi and contributors, licensed under the MIT License.
  */
-package com.simibubi.create.foundation.networking;
+package com.simibubi.create.foundation.utility.legacy.networking;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
@@ -73,18 +73,22 @@ public class MotorSpeedPacket implements IMessage {
         @Override
         public IMessage onMessage(MotorSpeedPacket message, MessageContext context) {
             EntityPlayerMP player = context.getServerHandler().playerEntity;
-            World world = player.worldObj;
-            if (player.getDistanceSq(message.x + 0.5, message.y + 0.5, message.z + 0.5) > 64) {
-                return null;
-            }
-            if (world.getBlock(message.x, message.y, message.z) != AllBlocks.CREATIVE_MOTOR) {
-                return null;
-            }
-            TileEntity tileEntity = world.getTileEntity(message.x, message.y, message.z);
-            if (tileEntity instanceof CreativeMotorBlockEntity motor) {
-                message.applyTo(motor);
-            }
+            LegacyServerTaskQueue.enqueue(() -> message.applyFor(player));
             return null;
+        }
+    }
+
+    private void applyFor(EntityPlayerMP player) {
+        World world = player.worldObj;
+        if (player.getDistanceSq(x + 0.5, y + 0.5, z + 0.5) > 64) {
+            return;
+        }
+        if (world.getBlock(x, y, z) != AllBlocks.CREATIVE_MOTOR) {
+            return;
+        }
+        TileEntity tileEntity = world.getTileEntity(x, y, z);
+        if (tileEntity instanceof CreativeMotorBlockEntity motor) {
+            applyTo(motor);
         }
     }
 }

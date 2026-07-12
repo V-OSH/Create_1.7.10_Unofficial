@@ -2,12 +2,13 @@
  * Legacy GUI bridge for Create 6.0.8's ValueSettingsScreen.
  * Create is Copyright (c) simibubi and contributors, licensed under the MIT License.
  */
-package com.simibubi.create.content.kinetics.motor;
+package com.simibubi.create.foundation.utility.legacy.client;
 
 import org.lwjgl.input.Mouse;
 
 import com.simibubi.create.AllPackets;
-import com.simibubi.create.foundation.networking.MotorSpeedPacket;
+import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
+import com.simibubi.create.foundation.utility.legacy.networking.MotorSpeedPacket;
 
 import cpw.mods.fml.client.config.GuiSlider;
 import net.minecraft.client.gui.GuiButton;
