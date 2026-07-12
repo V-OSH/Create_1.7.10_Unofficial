@@ -28,11 +28,9 @@ public final class CogWheelModelRenderer {
 
     private static void drawFace(CogWheelBlock block, int brightness, double[][] vertices, Face face) {
         Tessellator tessellator = Tessellator.instance;
-        double scale = CogWheelModel.textureCoordinateScale(face.texture());
-        Uv faceUv = face.uv();
-        double[][] uv = {{faceUv.minU() * scale, faceUv.maxV() * scale},
-            {faceUv.maxU() * scale, faceUv.maxV() * scale}, {faceUv.maxU() * scale, faceUv.minV() * scale},
-            {faceUv.minU() * scale, faceUv.minV() * scale}};
+        Uv faceUv = CogWheelModel.shrinkUv(face.uv(), face.texture());
+        double[][] uv = {{faceUv.minU(), faceUv.maxV()}, {faceUv.maxU(), faceUv.maxV()},
+            {faceUv.maxU(), faceUv.minV()}, {faceUv.minU(), faceUv.minV()}};
         int shift = Math.floorMod(face.rotation() / 90, 4);
         double[] normal = normal(vertices);
         IIcon icon = icon(block, face.texture());

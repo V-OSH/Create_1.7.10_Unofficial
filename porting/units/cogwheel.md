@@ -33,10 +33,12 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
 - `CogWheelItemBlock` resolves placement before the block enters the world and triggers the legacy kinetic rebuild.
   Upstream placement helpers depend on modern ray/context APIs, so the 1.7.10 adapter currently preserves direct
   clicked-Cogwheel alignment while its multi-placement assistance remains deferred.
-- The unchanged upstream seven-element JSON model is parsed once. Because it mixes a 32x32 Cogwheel sheet with
-  16x16 axis sheets, the legacy TESR applies a 0.5 UV scale only to `cogwheel.png` while leaving `cogwheel_axis` and
-  `axis_top` at 1.0. It then applies per-face UV rotations, element rotations, and the upstream position-dependent
-  22.5-degree half-tooth phase.
+- The unchanged upstream seven-element JSON model is parsed once. Although Blockbench writes
+  `"texture_size": [32, 32]`, vanilla's `BlockModel` ignores that metadata: all face UVs remain in the standard 0-16
+  domain, including the 32x32 `cogwheel.png`. The legacy TESR also mirrors `FaceBakery`'s per-face UV shrink
+  (`4 / sprite pixel width`) before atlas interpolation to prevent the narrow tooth faces from sampling over their
+  borders. It then applies per-face UV rotations, element rotations, and the upstream position-dependent 22.5-degree
+  half-tooth phase.
 - Collision uses the upstream union of a six-voxel pole and the 12x4x12 small-gear body. Minecraft 1.7.10 selection
   outlines cannot express the union, so the selected outline is its axis-oriented enclosing box.
 - `LegacyKineticNetwork` now assigns a speed multiplier to every edge. Shaft connections use `+1`; adjacent small
@@ -52,7 +54,7 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
 - [x] Selection covers both the gear body and its full axial Shaft.
 - [x] Adjacent parallel small Cogwheels reverse signed speed without changing its magnitude.
 - [x] Shaft transmission after a meshed Cogwheel retains the reversed speed.
-- [x] Original model element count, tooth overhang, per-texture UV scale, and +/-45-degree teeth are preserved.
+- [x] Original model element count, tooth overhang, vanilla UV domain/shrink, and +/-45-degree teeth are preserved.
 - [x] Adjacent Cogwheels receive upstream's alternating 22.5-degree tooth phase.
 - [x] Existing Motor-to-Shaft propagation and source-conflict tests remain green.
 

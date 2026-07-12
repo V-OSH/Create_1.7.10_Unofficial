@@ -45,9 +45,22 @@ public final class CogWheelModel {
         return DATA.elements();
     }
 
-    public static double textureCoordinateScale(Texture texture) {
-        // The model mixes a 32px gear sheet with 16px shaft sheets in one face-UV coordinate space.
-        return texture == Texture.COGWHEEL ? .5 : 1;
+    static Uv shrinkUv(Uv uv, Texture texture) {
+        // Minecraft 1.20.1 FaceBakery moves each edge toward the face centre by
+        // TextureAtlasSprite.uvShrinkRatio() (4 / sprite pixel width) before atlas interpolation.
+        double shrink = 4.0 / textureWidth(texture);
+        double centreU = (uv.minU() + uv.maxU()) / 2;
+        double centreV = (uv.minV() + uv.maxV()) / 2;
+        return new Uv(lerp(shrink, uv.minU(), centreU), lerp(shrink, uv.minV(), centreV),
+            lerp(shrink, uv.maxU(), centreU), lerp(shrink, uv.maxV(), centreV));
+    }
+
+    private static int textureWidth(Texture texture) {
+        return texture == Texture.COGWHEEL ? 32 : 16;
+    }
+
+    private static double lerp(double amount, double start, double end) {
+        return start + amount * (end - start);
     }
 
     private static ModelData load() {
