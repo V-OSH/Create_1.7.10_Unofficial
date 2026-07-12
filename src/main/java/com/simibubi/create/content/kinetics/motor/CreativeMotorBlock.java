@@ -30,6 +30,19 @@ public class CreativeMotorBlock extends KineticBlock {
     private IIcon casingIcon;
     @SideOnly(Side.CLIENT)
     private IIcon motorIcon;
+    @SideOnly(Side.CLIENT)
+    private IIcon axisIcon;
+    @SideOnly(Side.CLIENT)
+    private IIcon axisTopIcon;
+    @SideOnly(Side.CLIENT)
+    private IIcon flapIcon;
+    @SideOnly(Side.CLIENT)
+    private IIcon renderSideIcon;
+    @SideOnly(Side.CLIENT)
+    private IIcon renderCapIcon;
+    @SideOnly(Side.CLIENT)
+    private ForgeDirection renderAxis;
+    private static int renderType = -1;
 
     public CreativeMotorBlock() {
         super(Material.rock);
@@ -73,13 +86,68 @@ public class CreativeMotorBlock extends KineticBlock {
     public void registerBlockIcons(IIconRegister register) {
         casingIcon = register.registerIcon(Create.ID + ":creative_casing");
         motorIcon = register.registerIcon(Create.ID + ":creative_motor");
+        axisIcon = register.registerIcon(Create.ID + ":axis");
+        axisTopIcon = register.registerIcon(Create.ID + ":axis_top");
+        flapIcon = register.registerIcon(Create.ID + ":flap_display_front");
         blockIcon = casingIcon;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int metadata) {
+        if (renderSideIcon != null && renderAxis != null) {
+            ForgeDirection face = ForgeDirection.getOrientation(side);
+            return face.ordinal() >> 1 == renderAxis.ordinal() >> 1 ? renderCapIcon : renderSideIcon;
+        }
         return side == getFacing(metadata).ordinal() ? motorIcon : casingIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void beginElementRender(IIcon sideIcon, IIcon capIcon, ForgeDirection axis) {
+        renderSideIcon = sideIcon;
+        renderCapIcon = capIcon;
+        renderAxis = axis;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void endElementRender() {
+        renderSideIcon = null;
+        renderCapIcon = null;
+        renderAxis = null;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getCasingIcon() {
+        return casingIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getMotorIcon() {
+        return motorIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getAxisIcon() {
+        return axisIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getAxisTopIcon() {
+        return axisTopIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getFlapIcon() {
+        return flapIcon;
+    }
+
+    public static void setRenderType(int id) {
+        renderType = id;
+    }
+
+    @Override
+    public int getRenderType() {
+        return renderType;
     }
 
     @Override
@@ -126,7 +194,7 @@ public class CreativeMotorBlock extends KineticBlock {
 
     @Override
     public boolean renderAsNormalBlock() {
-        return true;
+        return false;
     }
 
     public static ForgeDirection resolvePlacementFacing(ForgeDirection look, ForgeDirection preferred,

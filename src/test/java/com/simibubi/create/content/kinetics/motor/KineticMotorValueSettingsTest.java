@@ -13,4 +13,12 @@ class KineticMotorValueSettingsTest {
         assertEquals(-1, KineticMotorValueSettings.toSignedSpeed(0, 0));
         assertEquals(256, KineticMotorValueSettings.toSignedSpeed(1, 999));
     }
+
+    @Test
+    void directionRowsMatchUpstreamArrowSemanticsFromTheOutputFace() {
+        assertEquals(-32,
+            KineticMotorValueSettings.toSignedSpeed(KineticMotorValueSettings.CLOCKWISE_ROW, 32));
+        assertEquals(32,
+            KineticMotorValueSettings.toSignedSpeed(KineticMotorValueSettings.COUNTER_CLOCKWISE_ROW, 32));
+    }
 }

@@ -32,5 +32,6 @@ public class Create {
         AllBlocks.register();
         AllBlockEntityTypes.register();
         AllPackets.register();
+        PROXY.registerRenderers();
     }
 }

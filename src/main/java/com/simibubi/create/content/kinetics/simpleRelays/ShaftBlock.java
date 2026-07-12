@@ -22,6 +22,8 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 public class ShaftBlock extends AbstractSimpleShaftBlock {
 
+    private static int renderType = -1;
+
     @SideOnly(Side.CLIENT)
     private IIcon axisIcon;
     @SideOnly(Side.CLIENT)
@@ -95,8 +97,16 @@ public class ShaftBlock extends AbstractSimpleShaftBlock {
 
     @Override
     public int getRenderType() {
-        // Vanilla's log renderer rotates side UVs for metadata axis bits 0, 4, and 8.
-        return 31;
+        return renderType;
+    }
+
+    public static void setRenderType(int id) {
+        renderType = id;
+    }
+
+    @Override
+    public boolean renderAsNormalBlock() {
+        return false;
     }
 
     @Override
@@ -122,5 +132,15 @@ public class ShaftBlock extends AbstractSimpleShaftBlock {
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int metadata) {
         return LegacyAxis.fromPlacementSide(side) == getRotationAxis(metadata) ? axisTopIcon : axisIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getAxisIcon() {
+        return axisIcon;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public IIcon getAxisTopIcon() {
+        return axisTopIcon;
     }
 }

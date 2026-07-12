@@ -47,10 +47,10 @@ class ShaftBlockTest {
     }
 
     @Test
-    void usesTheLegacyLogRendererForAxisAwareUvs() {
+    void leavesTheWorldModelToTheDynamicKineticRenderer() {
         ShaftBlock shaft = new ShaftBlock();
 
-        assertEquals(31, shaft.getRenderType());
+        assertEquals(false, shaft.renderAsNormalBlock());
     }
 
     @Test

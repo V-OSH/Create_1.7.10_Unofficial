@@ -8,6 +8,7 @@ import org.lwjgl.input.Mouse;
 
 import com.simibubi.create.AllPackets;
 import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
+import com.simibubi.create.content.kinetics.motor.KineticMotorValueSettings;
 import com.simibubi.create.foundation.utility.legacy.networking.MotorSpeedPacket;
 
 import cpw.mods.fml.client.config.GuiSlider;
@@ -17,8 +18,8 @@ import net.minecraft.client.resources.I18n;
 
 public class MotorValueSettingsScreen extends GuiScreen {
 
-    private static final int COUNTER_CLOCKWISE = 0;
-    private static final int CLOCKWISE = 1;
+    private static final int CLOCKWISE = KineticMotorValueSettings.CLOCKWISE_ROW;
+    private static final int COUNTER_CLOCKWISE = KineticMotorValueSettings.COUNTER_CLOCKWISE_ROW;
     private static final int SPEED = 2;
     private static final int CONFIRM = 3;
 
@@ -33,7 +34,7 @@ public class MotorValueSettingsScreen extends GuiScreen {
         this.x = x;
         this.y = y;
         this.z = z;
-        directionRow = currentSpeed < 0 ? 0 : 1;
+        directionRow = currentSpeed < 0 ? CLOCKWISE : COUNTER_CLOCKWISE;
         initialMagnitude = Math.max(1, Math.abs(currentSpeed));
     }
 
@@ -42,10 +43,10 @@ public class MotorValueSettingsScreen extends GuiScreen {
         buttonList.clear();
         int left = width / 2 - 100;
         int top = height / 2 - 44;
-        buttonList.add(new GuiButton(COUNTER_CLOCKWISE, left, top, 98, 20,
-            I18n.format("gui.create.motor.counter_clockwise")));
-        buttonList.add(new GuiButton(CLOCKWISE, left + 102, top, 98, 20,
+        buttonList.add(new GuiButton(CLOCKWISE, left, top, 98, 20,
             I18n.format("gui.create.motor.clockwise")));
+        buttonList.add(new GuiButton(COUNTER_CLOCKWISE, left + 102, top, 98, 20,
+            I18n.format("gui.create.motor.counter_clockwise")));
         speedSlider = new GuiSlider(SPEED, left, top + 26, 200, 20, "", " RPM", 1,
             CreativeMotorBlockEntity.MAX_SPEED, initialMagnitude, false, true);
         buttonList.add(speedSlider);
@@ -55,7 +56,7 @@ public class MotorValueSettingsScreen extends GuiScreen {
 
     @Override
     protected void actionPerformed(GuiButton button) {
-        if (button.id == COUNTER_CLOCKWISE || button.id == CLOCKWISE) {
+        if (button.id == CLOCKWISE || button.id == COUNTER_CLOCKWISE) {
             directionRow = button.id;
             updateDirectionButtons();
             return;
@@ -67,8 +68,8 @@ public class MotorValueSettingsScreen extends GuiScreen {
     }
 
     private void updateDirectionButtons() {
-        ((GuiButton) buttonList.get(COUNTER_CLOCKWISE)).enabled = directionRow != COUNTER_CLOCKWISE;
         ((GuiButton) buttonList.get(CLOCKWISE)).enabled = directionRow != CLOCKWISE;
+        ((GuiButton) buttonList.get(COUNTER_CLOCKWISE)).enabled = directionRow != COUNTER_CLOCKWISE;
     }
 
     @Override
