@@ -46,7 +46,8 @@ public final class CogWheelModel {
     }
 
     public static double textureCoordinateScale() {
-        return DATA.textureCoordinateScale();
+        // Blockbench's texture_size is editor metadata; Minecraft model UVs remain in the 0..16 domain.
+        return 1;
     }
 
     private static ModelData load() {
@@ -56,14 +57,12 @@ public final class CogWheelModel {
             }
             JsonObject root = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8))
                 .getAsJsonObject();
-            JsonArray textureSize = root.getAsJsonArray("texture_size");
-            double textureScale = 16.0 / textureSize.get(0).getAsDouble();
             List<Element> elements = new ArrayList<>();
             for (JsonElement jsonElement : root.getAsJsonArray("elements")) {
                 JsonObject object = jsonElement.getAsJsonObject();
                 elements.add(new Element(bounds(object), rotation(object), faces(object.getAsJsonObject("faces"))));
             }
-            return new ModelData(List.copyOf(elements), textureScale);
+            return new ModelData(List.copyOf(elements));
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to read upstream cogwheel model", exception);
         }
@@ -114,5 +113,5 @@ public final class CogWheelModel {
         };
     }
 
-    private record ModelData(List<Element> elements, double textureCoordinateScale) {}
+    private record ModelData(List<Element> elements) {}
 }

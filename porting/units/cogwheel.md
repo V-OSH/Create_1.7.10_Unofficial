@@ -33,8 +33,9 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
 - `CogWheelItemBlock` resolves placement before the block enters the world and triggers the legacy kinetic rebuild.
   Upstream placement helpers depend on modern ray/context APIs, so the 1.7.10 adapter currently preserves direct
   clicked-Cogwheel alignment while its multi-placement assistance remains deferred.
-- The unchanged upstream seven-element JSON model is parsed once. The legacy TESR applies its 32x32 UV scale,
-  per-face UV rotations, element rotations, and the upstream position-dependent 22.5-degree half-tooth phase.
+- The unchanged upstream seven-element JSON model is parsed once. The legacy TESR keeps Minecraft's 0..16 UV
+  domain (the JSON `texture_size` field is Blockbench-only metadata), then applies per-face UV rotations, element
+  rotations, and the upstream position-dependent 22.5-degree half-tooth phase.
 - Collision uses the upstream union of a six-voxel pole and the 12x4x12 small-gear body. Minecraft 1.7.10 selection
   outlines cannot express the union, so the selected outline is its axis-oriented enclosing box.
 - `LegacyKineticNetwork` now assigns a speed multiplier to every edge. Shaft connections use `+1`; adjacent small
@@ -50,7 +51,7 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
 - [x] Selection covers both the gear body and its full axial Shaft.
 - [x] Adjacent parallel small Cogwheels reverse signed speed without changing its magnitude.
 - [x] Shaft transmission after a meshed Cogwheel retains the reversed speed.
-- [x] Original model element count, tooth overhang, 32x32 UV scale, and +/-45-degree teeth are preserved.
+- [x] Original model element count, tooth overhang, Minecraft UV domain, and +/-45-degree teeth are preserved.
 - [x] Adjacent Cogwheels receive upstream's alternating 22.5-degree tooth phase.
 - [x] Existing Motor-to-Shaft propagation and source-conflict tests remain green.
 
