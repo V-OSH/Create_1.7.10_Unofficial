@@ -64,7 +64,7 @@ Total registry entries: 587
 | `COPYCAT_STEP` | planned-core | P1 | pending | pending | `AllBlocks.java:2354` |  |
 | `CREATIVE_CRATE` | planned-core | P1 | pending | pending | `AllBlocks.java:1817` |  |
 | `CREATIVE_FLUID_TANK` | planned-core | P1 | pending | pending | `AllBlocks.java:996` |  |
-| `CREATIVE_MOTOR` | planned-core | P1 | pending | pending | `AllBlocks.java:556` |  |
+| `CREATIVE_MOTOR` | in-progress | P0 | pass | pending | `AllBlocks.java:556` | First kinetic source and Value Settings fallback |
 | `CRUSHING_WHEEL` | planned-core | P1 | pending | pending | `AllBlocks.java:683` |  |
 | `CRUSHING_WHEEL_CONTROLLER` | planned-core | P1 | pending | pending | `AllBlocks.java:696` |  |
 | `CUCKOO_CLOCK` | planned-core | P1 | pending | pending | `AllBlocks.java:655` |  |
@@ -268,7 +268,7 @@ Total registry entries: 587
 | `MECHANICAL_PUMP` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:381` |  |
 | `MECHANICAL_ROLLER` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:638` |  |
 | `MILLSTONE` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:687` |  |
-| `MOTOR` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:261` |  |
+| `MOTOR` | in-progress | P0 | pass | pending | `AllBlockEntityTypes.java:261` | Persists generated speed and drives the minimal legacy kinetic network |
 | `NIXIE_TUBE` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:823` |  |
 | `NOZZLE` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:311` |  |
 | `PACKAGE_FROGPORT` | planned-core | P1 | pending | pending | `AllBlockEntityTypes.java:514` |  |

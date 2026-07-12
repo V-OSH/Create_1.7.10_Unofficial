@@ -6,12 +6,15 @@ package com.simibubi.create;
 
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftBlock;
 import com.simibubi.create.content.kinetics.simpleRelays.ShaftItemBlock;
+import com.simibubi.create.content.kinetics.motor.CreativeMotorBlock;
+import com.simibubi.create.content.kinetics.motor.CreativeMotorItemBlock;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public final class AllBlocks {
 
     public static final ShaftBlock SHAFT = new ShaftBlock();
+    public static final CreativeMotorBlock CREATIVE_MOTOR = new CreativeMotorBlock();
 
     private static boolean registered;
 
@@ -21,7 +24,9 @@ public final class AllBlocks {
         }
         registered = true;
         GameRegistry.registerBlock(SHAFT, ShaftItemBlock.class, "shaft");
+        GameRegistry.registerBlock(CREATIVE_MOTOR, CreativeMotorItemBlock.class, "creative_motor");
         SHAFT.setCreativeTab(AllCreativeModeTabs.BASE);
+        CREATIVE_MOTOR.setCreativeTab(AllCreativeModeTabs.BASE);
     }
 
     private AllBlocks() {}

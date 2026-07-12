@@ -14,6 +14,7 @@ import net.minecraft.tileentity.TileEntity;
 public class KineticBlockEntity extends TileEntity {
 
     private float speed;
+    private boolean networkInitialized;
 
     public float getSpeed() {
         return speed;
@@ -27,6 +28,14 @@ public class KineticBlockEntity extends TileEntity {
         markDirty();
         if (worldObj != null) {
             worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+        }
+    }
+
+    @Override
+    public void updateEntity() {
+        if (!networkInitialized && worldObj != null && !worldObj.isRemote) {
+            networkInitialized = true;
+            LegacyKineticNetwork.rebuildAt(worldObj, xCoord, yCoord, zCoord);
         }
     }
 

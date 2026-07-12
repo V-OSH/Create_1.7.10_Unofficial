@@ -7,6 +7,7 @@ package com.simibubi.create.content.kinetics.simpleRelays;
 
 import com.simibubi.create.Create;
 import com.simibubi.create.content.kinetics.base.IRotate;
+import com.simibubi.create.content.kinetics.base.LegacyKineticNetwork;
 import com.simibubi.create.foundation.utility.legacy.LegacyAxis;
 
 import cpw.mods.fml.relauncher.Side;
@@ -100,6 +101,12 @@ public class ShaftBlock extends AbstractSimpleShaftBlock {
     @Override
     public int damageDropped(int metadata) {
         return 0;
+    }
+
+    @Override
+    public void breakBlock(World world, int x, int y, int z, net.minecraft.block.Block block, int metadata) {
+        super.breakBlock(world, x, y, z, block, metadata);
+        LegacyKineticNetwork.rebuildAt(world, x, y, z);
     }
 
     @Override

@@ -1,2 +1,6 @@
 tile.create.shaft.name=Shaft
+tile.create.creative_motor.name=Creative Motor
 itemGroup.create=Create
+gui.create.motor.title=Creative Motor Rotation Speed
+gui.create.motor.counter_clockwise=Counter-clockwise
+gui.create.motor.clockwise=Clockwise

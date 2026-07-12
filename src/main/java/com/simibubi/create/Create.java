@@ -7,8 +7,11 @@ package com.simibubi.create;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.simibubi.create.foundation.utility.legacy.CommonProxy;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 @Mod(modid = Create.ID, name = Create.NAME, version = Create.VERSION)
@@ -19,10 +22,15 @@ public class Create {
     public static final String VERSION = Tags.VERSION;
     public static final Logger LOGGER = LogManager.getLogger(NAME);
 
+    @SidedProxy(clientSide = "com.simibubi.create.foundation.utility.legacy.ClientProxy",
+        serverSide = "com.simibubi.create.foundation.utility.legacy.CommonProxy")
+    public static CommonProxy PROXY;
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         LOGGER.info("Initializing the Create 6.0.8 reverse-port foundation");
         AllBlocks.register();
         AllBlockEntityTypes.register();
+        AllPackets.register();
     }
 }

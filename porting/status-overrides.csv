@@ -1,3 +1,5 @@
 kind,symbol,status,priority,automated,manual,notes
 block,SHAFT,in-progress,P0,pass,pending,First formal block port
+block,CREATIVE_MOTOR,in-progress,P0,pass,pending,First kinetic source and Value Settings fallback
 block_entity,BRACKETED_KINETIC,in-progress,P0,pass,pending,Reduced to simple kinetic state until brackets are ported
+block_entity,MOTOR,in-progress,P0,pass,pending,Persists generated speed and drives the minimal legacy kinetic network

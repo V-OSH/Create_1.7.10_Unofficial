@@ -5,6 +5,7 @@
 package com.simibubi.create;
 
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
+import com.simibubi.create.content.kinetics.motor.CreativeMotorBlockEntity;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 
@@ -18,6 +19,7 @@ public final class AllBlockEntityTypes {
         }
         registered = true;
         GameRegistry.registerTileEntity(KineticBlockEntity.class, Create.ID + ":simple_kinetic");
+        GameRegistry.registerTileEntity(CreativeMotorBlockEntity.class, Create.ID + ":creative_motor");
     }
 
     private AllBlockEntityTypes() {}
