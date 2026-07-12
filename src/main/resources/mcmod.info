@@ -2,12 +2,12 @@
   {
     "modid": "create",
     "name": "Create 1.7.10 Unofficial",
-    "description": "An unofficial source-based reverse port of Create 6.0.8 to Minecraft 1.7.10.",
+    "description": "An unofficial source-based reverse port of the official Create tag mc1.20.1-6.0.8 to Minecraft 1.7.10.",
     "version": "0.1.0-upstream-port",
     "mcversion": "1.7.10",
-    "url": "https://github.com/Creators-of-Create/Create",
+    "url": "https://github.com/Creators-of-Create/Create/tree/mc1.20.1-6.0.8",
     "authorList": ["V-OSH"],
-    "credits": "Based on Create by simibubi and contributors; upstream source is MIT licensed.",
+    "credits": "Create by simibubi and contributors (MIT License), source tag mc1.20.1-6.0.8.",
     "dependencies": ["lwjgl3ify"]
   }
 ]

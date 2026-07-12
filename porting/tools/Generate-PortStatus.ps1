@@ -7,23 +7,23 @@ $ErrorActionPreference = "Stop"
 $registryRoot = Join-Path $UpstreamRoot "src\main\java\com\simibubi\create"
 
 $specs = @(
-    @{ Kind = "block"; File = "AllBlocks.java"; DefaultPriority = "P1" },
-    @{ Kind = "item"; File = "AllItems.java"; DefaultPriority = "P1" },
-    @{ Kind = "block_entity"; File = "AllBlockEntityTypes.java"; DefaultPriority = "P1" },
-    @{ Kind = "fluid"; File = "AllFluids.java"; DefaultPriority = "P2" },
-    @{ Kind = "menu"; File = "AllMenuTypes.java"; DefaultPriority = "P1" },
-    @{ Kind = "entity"; File = "AllEntityTypes.java"; DefaultPriority = "P3" },
-    @{ Kind = "enchantment"; File = "AllEnchantments.java"; DefaultPriority = "P1" },
+    @{ Kind = "block"; File = "AllBlocks.java"; TypePattern = "^BlockEntry<"; DefaultPriority = "P1" },
+    @{ Kind = "item"; File = "AllItems.java"; TypePattern = "^ItemEntry<"; DefaultPriority = "P1" },
+    @{ Kind = "block_entity"; File = "AllBlockEntityTypes.java"; TypePattern = "^BlockEntityEntry<"; DefaultPriority = "P1" },
+    @{ Kind = "fluid"; File = "AllFluids.java"; TypePattern = "^FluidEntry<"; DefaultPriority = "P2" },
+    @{ Kind = "menu"; File = "AllMenuTypes.java"; TypePattern = "^MenuEntry<"; DefaultPriority = "P1" },
+    @{ Kind = "entity"; File = "AllEntityTypes.java"; TypePattern = "^EntityEntry<"; DefaultPriority = "P3" },
+    @{ Kind = "enchantment"; File = "AllEnchantments.java"; TypePattern = "^RegistryEntry<"; DefaultPriority = "P1" },
     @{ Kind = "particle"; File = "AllParticleTypes.java"; DefaultPriority = "P1" },
-    @{ Kind = "sound"; File = "AllSoundEvents.java"; DefaultPriority = "P1" },
-    @{ Kind = "structure_processor"; File = "AllStructureProcessorTypes.java"; DefaultPriority = "P3" },
-    @{ Kind = "mounted_storage"; File = "AllMountedStorageTypes.java"; DefaultPriority = "P3" },
-    @{ Kind = "contraption_type"; File = "AllContraptionTypes.java"; DefaultPriority = "P3"; Exclude = @("BY_LEGACY_NAME") },
-    @{ Kind = "display_source"; File = "AllDisplaySources.java"; DefaultPriority = "P2" },
-    @{ Kind = "display_target"; File = "AllDisplayTargets.java"; DefaultPriority = "P2" },
-    @{ Kind = "bogey_style"; File = "AllBogeyStyles.java"; DefaultPriority = "P5"; Exclude = @("BOGEY_STYLES", "CYCLE_GROUPS", "STANDARD_CYCLE_GROUP") },
-    @{ Kind = "damage_type"; File = "AllDamageTypes.java"; DefaultPriority = "P1" },
-    @{ Kind = "entity_data_serializer"; File = "AllEntityDataSerializers.java"; DefaultPriority = "P5"; Exclude = @("CARRIAGE_DATA") }
+    @{ Kind = "sound"; File = "AllSoundEvents.java"; TypePattern = "^SoundEntry$"; DefaultPriority = "P1" },
+    @{ Kind = "structure_processor"; File = "AllStructureProcessorTypes.java"; TypePattern = "^RegistryObject<StructureProcessorType"; DefaultPriority = "P3" },
+    @{ Kind = "mounted_storage"; File = "AllMountedStorageTypes.java"; TypePattern = "^RegistryEntry<"; DefaultPriority = "P3" },
+    @{ Kind = "contraption_type"; File = "AllContraptionTypes.java"; TypePattern = "^Reference<ContraptionType>$"; DefaultPriority = "P3" },
+    @{ Kind = "display_source"; File = "AllDisplaySources.java"; TypePattern = "^RegistryEntry<"; DefaultPriority = "P2" },
+    @{ Kind = "display_target"; File = "AllDisplayTargets.java"; TypePattern = "^RegistryEntry<"; DefaultPriority = "P2" },
+    @{ Kind = "bogey_style"; File = "AllBogeyStyles.java"; TypePattern = "^BogeyStyle$"; DefaultPriority = "P5" },
+    @{ Kind = "damage_type"; File = "AllDamageTypes.java"; TypePattern = "^ResourceKey<DamageType>$"; DefaultPriority = "P1" },
+    @{ Kind = "entity_data_serializer"; File = "AllEntityDataSerializers.java"; TypePattern = "^RegistryObject<CarriageSyncDataSerializer>$"; DefaultPriority = "P5" }
 )
 
 $overridePath = Join-Path $PSScriptRoot "..\status-overrides.csv"
@@ -76,8 +76,10 @@ foreach ($spec in $specs) {
     $content = Get-Content -Raw -Encoding UTF8 $path
 
     foreach ($statement in [regex]::Matches($content, "(?ms)public\s+static\s+final\s+.*?;")) {
+        $declaration = [regex]::Match($statement.Value, "(?ms)^public\s+static\s+final\s+(?<type>.*?)\s+[A-Z][A-Z0-9_]*\s*=")
+        if (-not $declaration.Success) { continue }
+        if ($spec.TypePattern -and $declaration.Groups["type"].Value.Trim() -notmatch $spec.TypePattern) { continue }
         foreach ($assignment in [regex]::Matches($statement.Value, "\b(?<symbol>[A-Z][A-Z0-9_]*)\s*=")) {
-            if ($spec.Exclude -and $assignment.Groups["symbol"].Value -in $spec.Exclude) { continue }
             $prefix = $content.Substring(0, $statement.Index + $assignment.Index)
             $line = ([regex]::Matches($prefix, "\n")).Count + 1
             Add-Row $rows $spec $assignment.Groups["symbol"].Value $line
