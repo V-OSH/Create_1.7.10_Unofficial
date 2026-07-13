@@ -18,6 +18,7 @@ import com.google.gson.JsonParser;
 public final class CogWheelModel {
 
     private static final String MODEL = "/assets/create/models/block/cogwheel.json";
+    private static final String LARGE_MODEL = "/assets/create/models/block/large_cogwheel.json";
 
     public enum Texture {
         AXIS, AXIS_TOP, COGWHEEL
@@ -37,12 +38,17 @@ public final class CogWheelModel {
 
     public record Element(Cuboid bounds, Rotation rotation, Map<Direction, Face> faces) {}
 
-    private static final ModelData DATA = load();
+    private static final ModelData DATA = load(MODEL);
+    private static final ModelData LARGE_DATA = load(LARGE_MODEL);
 
     private CogWheelModel() {}
 
     public static List<Element> elements() {
         return DATA.elements();
+    }
+
+    public static List<Element> elements(boolean large) {
+        return (large ? LARGE_DATA : DATA).elements();
     }
 
     static Uv shrinkUv(Uv uv, Texture texture) {
@@ -55,12 +61,8 @@ public final class CogWheelModel {
             lerp(shrink, uv.maxU(), centreU), lerp(shrink, uv.maxV(), centreV));
     }
 
-    static double[][] uvCorners(Face face, Direction direction) {
+    static double[][] uvCorners(Face face) {
         Uv uv = shrinkUv(face.uv(), face.texture());
-        if (face.texture() == Texture.COGWHEEL && direction != Direction.UP && direction != Direction.DOWN) {
-            double pixel = 16.0 / textureWidth(face.texture());
-            uv = new Uv(uv.minU() + pixel, uv.minV() + pixel, uv.maxU() - pixel, uv.maxV() - pixel);
-        }
         return new double[][] {{uv.minU(), uv.minV()}, {uv.minU(), uv.maxV()}, {uv.maxU(), uv.maxV()},
             {uv.maxU(), uv.minV()}};
     }
@@ -73,10 +75,10 @@ public final class CogWheelModel {
         return start + amount * (end - start);
     }
 
-    private static ModelData load() {
-        try (InputStream stream = CogWheelModel.class.getResourceAsStream(MODEL)) {
+    private static ModelData load(String model) {
+        try (InputStream stream = CogWheelModel.class.getResourceAsStream(model)) {
             if (stream == null) {
-                throw new IllegalStateException("Missing upstream cogwheel model");
+                throw new IllegalStateException("Missing upstream cogwheel model: " + model);
             }
             JsonObject root = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8))
                 .getAsJsonObject();
@@ -132,6 +134,7 @@ public final class CogWheelModel {
             case "#0" -> Texture.AXIS;
             case "#3" -> Texture.AXIS_TOP;
             case "#1_2" -> Texture.COGWHEEL;
+            case "#4" -> Texture.COGWHEEL;
             default -> throw new IllegalArgumentException("Unknown cogwheel texture reference: " + reference);
         };
     }

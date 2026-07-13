@@ -5,13 +5,17 @@
  */
 package com.simibubi.create.content.kinetics.base;
 
+import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
 import com.simibubi.create.foundation.utility.legacy.kinetics.LegacyKineticWorldAdapter;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 
 public class KineticBlockEntity extends TileEntity {
 
@@ -63,5 +67,19 @@ public class KineticBlockEntity extends TileEntity {
     @Override
     public void onDataPacket(NetworkManager network, S35PacketUpdateTileEntity packet) {
         readFromNBT(packet.func_148857_g());
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox() {
+        return worldObj != null && ICogWheel.isLargeCog(getBlockType())
+            ? createRenderBoundingBox(xCoord, yCoord, zCoord, true)
+            : super.getRenderBoundingBox();
+    }
+
+    static AxisAlignedBB createRenderBoundingBox(int x, int y, int z, boolean largeCogwheel) {
+        int inflation = largeCogwheel ? 1 : 0;
+        return AxisAlignedBB.getBoundingBox(x - inflation, y - inflation, z - inflation, x + 1 + inflation,
+            y + 1 + inflation, z + 1 + inflation);
     }
 }

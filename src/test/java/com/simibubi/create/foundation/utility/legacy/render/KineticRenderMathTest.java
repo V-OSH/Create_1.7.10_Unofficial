@@ -25,5 +25,6 @@ class KineticRenderMathTest {
     void adjacentCogwheelsUseTheUpstreamHalfToothPhaseOffset() {
         assertEquals(22.5f, KineticRenderMath.cogwheelOffsetDegrees(LegacyAxis.Y, 0, 0, 0), 0.0001f);
         assertEquals(0f, KineticRenderMath.cogwheelOffsetDegrees(LegacyAxis.Y, 1, 0, 0), 0.0001f);
+        assertEquals(11.25f, KineticRenderMath.cogwheelOffsetDegrees(LegacyAxis.Y, 1, 0, 0, true), 0.0001f);
     }
 }

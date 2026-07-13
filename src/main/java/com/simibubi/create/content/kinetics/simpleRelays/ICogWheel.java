@@ -14,6 +14,10 @@ public interface ICogWheel extends IRotate {
         return block instanceof ICogWheel cogwheel && cogwheel.isSmallCog();
     }
 
+    static boolean isLargeCog(Block block) {
+        return block instanceof ICogWheel cogwheel && cogwheel.isLargeCog();
+    }
+
     default boolean isLargeCog() {
         return false;
     }

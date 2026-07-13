@@ -2,6 +2,11 @@ package com.simibubi.create.foundation.utility.legacy.render;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.junit.jupiter.api.Test;
 
 class CogWheelModelTest {
@@ -11,6 +16,23 @@ class CogWheelModelTest {
         assertEquals(7, CogWheelModel.elements().size());
         assertEquals(45, CogWheelModel.elements().get(2).rotation().angle(), 0.0001);
         assertEquals(-45, CogWheelModel.elements().get(3).rotation().angle(), 0.0001);
+    }
+
+    @Test
+    void preservesTheUpstreamLargeCogwheelModel() {
+        assertEquals(16, CogWheelModel.elements(true).size());
+        assertEquals(45, CogWheelModel.elements(true).get(0).rotation().angle(), 0.0001);
+        assertEquals(22.5, CogWheelModel.elements(true).get(2).rotation().angle(), 0.0001);
+        assertEquals(-7.0 / 16, CogWheelModel.elements(true).get(2).bounds().minX(), 0.0001);
+        assertEquals(23.0 / 16, CogWheelModel.elements(true).get(2).bounds().maxX(), 0.0001);
+    }
+
+    @Test
+    void bundlesTheExactUpstreamCogwheelTextures() throws IOException, NoSuchAlgorithmException {
+        assertEquals("011591a34282037145fa38a5970b5b38e1c31d6b9f8a823b4598daa7e79c5b08",
+            sha256("/assets/create/textures/blocks/cogwheel.png"));
+        assertEquals("fdea9c2c9cb758ad27170dce94ca4adb73b187dbe89098ec81264b4c0cdd48ac",
+            sha256("/assets/create/textures/blocks/large_cogwheel.png"));
     }
 
     @Test
@@ -43,7 +65,7 @@ class CogWheelModelTest {
     void assignsUvCornersInVanillaBlockFaceUvOrder() {
         CogWheelModel.Face face = new CogWheelModel.Face(CogWheelModel.Texture.COGWHEEL,
             new CogWheelModel.Uv(7, 8, 16, 9.5), 0);
-        double[][] corners = CogWheelModel.uvCorners(face, CogWheelModel.Direction.UP);
+        double[][] corners = CogWheelModel.uvCorners(face);
 
         assertCorner(corners[0], 7.5625, 8.09375);
         assertCorner(corners[1], 7.5625, 9.40625);
@@ -52,17 +74,17 @@ class CogWheelModelTest {
     }
 
     @Test
-    void insetsOnlyBrownSideFacesByOneSourcePixel() {
+    void keepsSideFaceUvsIdenticalToUpstreamFaceBakery() {
         CogWheelModel.Face face = new CogWheelModel.Face(CogWheelModel.Texture.COGWHEEL,
             new CogWheelModel.Uv(7, 8, 16, 9.5), 0);
-        double[][] side = CogWheelModel.uvCorners(face, CogWheelModel.Direction.NORTH);
-        double[][] top = CogWheelModel.uvCorners(face, CogWheelModel.Direction.UP);
+        double[][] side = CogWheelModel.uvCorners(face);
+        double[][] top = CogWheelModel.uvCorners(face);
         CogWheelModel.Face axisFace = new CogWheelModel.Face(CogWheelModel.Texture.AXIS,
             new CogWheelModel.Uv(6, 0, 10, 16), 0);
-        double[][] axisSide = CogWheelModel.uvCorners(axisFace, CogWheelModel.Direction.NORTH);
+        double[][] axisSide = CogWheelModel.uvCorners(axisFace);
 
-        assertCorner(side[0], 8.0625, 8.59375);
-        assertCorner(side[2], 14.9375, 8.90625);
+        assertCorner(side[0], 7.5625, 8.09375);
+        assertCorner(side[2], 15.4375, 9.40625);
         assertCorner(top[0], 7.5625, 8.09375);
         assertCorner(top[2], 15.4375, 9.40625);
         assertCorner(axisSide[0], 6.5, 2);
@@ -88,5 +110,11 @@ class CogWheelModelTest {
         assertEquals(expectedX, vertex[0], 0.0001);
         assertEquals(expectedY, vertex[1], 0.0001);
         assertEquals(expectedZ, vertex[2], 0.0001);
+    }
+
+    private static String sha256(String resource) throws IOException, NoSuchAlgorithmException {
+        try (InputStream stream = CogWheelModelTest.class.getResourceAsStream(resource)) {
+            return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(stream.readAllBytes()));
+        }
     }
 }

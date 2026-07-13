@@ -47,7 +47,7 @@ Total registry entries: 587
 | `CLIPBOARD` | planned-core | P1 | pending | pending | `AllBlocks.java:2254` |  |
 | `CLOCKWORK_BEARING` | planned-core | P3 | pending | pending | `AllBlocks.java:1195` |  |
 | `CLUTCH` | planned-core | P1 | pending | pending | `AllBlocks.java:474` |  |
-| `COGWHEEL` | in-progress | P0 | pass | pending | `AllBlocks.java:380` | Small Cogwheel axial drive and equal-size reverse meshing |
+| `COGWHEEL` | in-progress | P1 | pass | pending | `AllBlocks.java:380` | Small Cogwheel axial drive and equal-size reverse meshing |
 | `CONTRAPTION_CONTROLS` | planned-core | P3 | pending | pending | `AllBlocks.java:1328` |  |
 | `CONTROLLER_RAIL` | planned-core | P1 | pending | pending | `AllBlocks.java:1259` |  |
 | `COPPER_BACKTANK` | planned-core | P1 | pending | pending | `AllBlocks.java:2181` |  |
@@ -101,7 +101,7 @@ Total registry entries: 587
 | `ITEM_HATCH` | planned-core | P1 | pending | pending | `AllBlocks.java:1841` |  |
 | `ITEM_VAULT` | planned-core | P1 | pending | pending | `AllBlocks.java:1824` |  |
 | `LARGE_BOGEY` | planned-late | P5 | pending | pending | `AllBlocks.java:1694` |  |
-| `LARGE_COGWHEEL` | planned-core | P1 | pending | pending | `AllBlocks.java:392` |  |
+| `LARGE_COGWHEEL` | in-progress | P0 | pass | pending | `AllBlocks.java:392` | Large Cogwheel rendering and upstream small/large gear ratios |
 | `LARGE_WATER_WHEEL` | planned-core | P1 | pending | pending | `AllBlocks.java:585` |  |
 | `LECTERN_CONTROLLER` | planned-core | P1 | pending | pending | `AllBlocks.java:2170` |  |
 | `LINEAR_CHASSIS` | planned-core | P3 | pending | pending | `AllBlocks.java:1280` |  |

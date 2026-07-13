@@ -38,10 +38,9 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
   domain, including the 32x32 `cogwheel.png`. The legacy TESR also mirrors `FaceBakery`'s per-face UV shrink
   (`4 / sprite pixel width`) before atlas interpolation to prevent the narrow tooth faces from sampling over their
   borders. Quad vertices follow vanilla `FaceInfo` order and UV corners follow `BlockFaceUV` order; keeping both in
-  the same coordinate order prevents an unintended 90-degree texture turn on the horizontal tooth faces. It then
-  applies a one-source-pixel inset only to the 32x32 brown texture's vertical tooth/body faces, leaving the corrected
-  top/bottom and 16x16 axis sheets unchanged. Finally it applies per-face UV rotations, element rotations, and the
-  upstream position-dependent 22.5-degree half-tooth phase.
+  the same coordinate order prevents an unintended 90-degree texture turn on the horizontal tooth faces. No legacy
+  UV crop is applied after that standard bake step. Finally it applies per-face UV rotations, element rotations, and
+  the upstream position-dependent 22.5-degree half-tooth phase.
 - Collision uses the upstream union of a six-voxel pole and the 12x4x12 small-gear body. Minecraft 1.7.10 selection
   outlines cannot express the union, so the selected outline is its axis-oriented enclosing box.
 - `LegacyKineticNetwork` now assigns a speed multiplier to every edge. Shaft connections use `+1`; adjacent small
@@ -59,7 +58,8 @@ Paths are relative to the vendored Create 6.0.8 snapshot; generated recipe paths
 - [x] Shaft transmission after a meshed Cogwheel retains the reversed speed.
 - [x] Original model element count, tooth overhang, vanilla vertex/UV order and shrink, and +/-45-degree teeth are
   preserved.
-- [x] Brown tooth/body side faces receive a one-pixel inset without changing top faces or axis textures.
+- [x] Side, top, and axis faces use only upstream model UVs plus vanilla `FaceBakery` shrink, with no custom crop.
+- [x] The bundled `cogwheel.png` SHA-256 matches the vendored Create 6.0.8 texture.
 - [x] Adjacent Cogwheels receive upstream's alternating 22.5-degree tooth phase.
 - [x] Existing Motor-to-Shaft propagation and source-conflict tests remain green.
 

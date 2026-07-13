@@ -17,18 +17,17 @@ public final class CogWheelModelRenderer {
     private CogWheelModelRenderer() {}
 
     public static void render(CogWheelBlock block, int brightness) {
-        for (Element element : CogWheelModel.elements()) {
+        for (Element element : CogWheelModel.elements(block.isLargeCog())) {
             for (Map.Entry<Direction, Face> entry : element.faces().entrySet()) {
                 drawFace(block, brightness, rotate(vertices(element.bounds(), entry.getKey()), element.rotation()),
-                    entry.getKey(), entry.getValue());
+                    entry.getValue());
             }
         }
     }
 
-    private static void drawFace(CogWheelBlock block, int brightness, double[][] vertices, Direction direction,
-        Face face) {
+    private static void drawFace(CogWheelBlock block, int brightness, double[][] vertices, Face face) {
         Tessellator tessellator = Tessellator.instance;
-        double[][] uv = CogWheelModel.uvCorners(face, direction);
+        double[][] uv = CogWheelModel.uvCorners(face);
         int shift = Math.floorMod(face.rotation() / 90, 4);
         double[] normal = normal(vertices);
         IIcon icon = icon(block, face.texture());

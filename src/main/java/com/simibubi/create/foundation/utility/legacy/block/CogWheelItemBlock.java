@@ -29,13 +29,17 @@ public class CogWheelItemBlock extends ItemBlock {
         LegacyAxis clickedAxis = LegacyAxis.fromPlacementSide(side);
         Block placedAgainst = world.getBlock(x - clickedFace.offsetX, y - clickedFace.offsetY,
             z - clickedFace.offsetZ);
-        LegacyAxis placedAgainstAxis = placedAgainst instanceof CogWheelBlock cogwheel
+        LegacyAxis placedAgainstAxis = placedAgainst instanceof CogWheelBlock cogwheel && cogwheel.isSmallCog()
             ? cogwheel.getRotationAxis(world.getBlockMetadata(x - clickedFace.offsetX, y - clickedFace.offsetY,
                 z - clickedFace.offsetZ))
             : null;
         LegacyAxis preferredAxis = ShaftBlock.getPreferredAxis(world, x, y, z);
         LegacyAxis axis = CogWheelBlock.resolvePlacementAxis(clickedAxis, placedAgainstAxis, preferredAxis,
             player != null && player.isSneaking());
+        CogWheelBlock cogwheel = (CogWheelBlock) field_150939_a;
+        if (!CogWheelBlock.isValidCogwheelPosition(cogwheel.isLargeCog(), world, x, y, z, axis)) {
+            return false;
+        }
         boolean placed = super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ,
             axis.getMetadata());
         if (placed) {

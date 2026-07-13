@@ -27,8 +27,8 @@ public final class KineticShaftRenderer extends TileEntitySpecialRenderer {
         }
         LegacyAxis axis = block instanceof ShaftBlock shaft ? shaft.getRotationAxis(kinetic.getBlockMetadata())
             : ((CogWheelBlock) block).getRotationAxis(kinetic.getBlockMetadata());
-        float offset = block instanceof CogWheelBlock
-            ? KineticRenderMath.cogwheelOffsetDegrees(axis, kinetic.xCoord, kinetic.yCoord, kinetic.zCoord) : 0;
+        float offset = KineticRenderMath.cogwheelOffsetDegrees(axis, kinetic.xCoord, kinetic.yCoord, kinetic.zCoord,
+            block instanceof CogWheelBlock cogwheel && cogwheel.isLargeCog());
         float angle = KineticRenderMath.angleDegrees(kinetic.getWorldObj().getTotalWorldTime(), partialTicks,
             kinetic.getSpeed(), offset);
 

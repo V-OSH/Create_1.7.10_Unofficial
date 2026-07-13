@@ -65,6 +65,29 @@ class LegacyKineticNetworkTest {
         assertEquals(-32f, world.speed(outputShaft));
     }
 
+    @Test
+    void diagonalLargeCogwheelDoublesConnectedSmallCogwheelSpeed() {
+        GraphNetwork world = new GraphNetwork();
+        LegacyKineticNetwork.Position largeCog = new LegacyKineticNetwork.Position(0, 0, 0);
+        LegacyKineticNetwork.Position smallCog = new LegacyKineticNetwork.Position(1, 0, 1);
+        LegacyKineticNetwork.Position outputShaft = new LegacyKineticNetwork.Position(1, 1, 1);
+        world.put(largeCog, 32f);
+        world.put(smallCog, null);
+        world.put(outputShaft, null);
+        world.connect(largeCog, smallCog, -2, -.5f);
+        world.connect(smallCog, outputShaft, 1, 1);
+
+        LegacyKineticNetwork.rebuildAt(world, largeCog);
+
+        assertEquals(-64f, world.speed(smallCog));
+        assertEquals(-64f, world.speed(outputShaft));
+
+        world.remove(largeCog);
+        LegacyKineticNetwork.rebuildAt(world, smallCog);
+        assertEquals(0f, world.speed(smallCog));
+        assertEquals(0f, world.speed(outputShaft));
+    }
+
     private static final class MemoryNetwork implements LegacyKineticNetwork.NetworkView {
 
         private final Map<LegacyKineticNetwork.Position, Node> nodes = new HashMap<>();
@@ -140,6 +163,66 @@ class LegacyKineticNetworkTest {
                 node.modifiers.put(direction, modifier);
             }
             return node;
+        }
+    }
+
+    private static final class GraphNetwork implements LegacyKineticNetwork.NetworkView {
+
+        private record Edge(LegacyKineticNetwork.Position from, LegacyKineticNetwork.Position to) {}
+
+        private final Map<LegacyKineticNetwork.Position, Float> sources = new HashMap<>();
+        private final Map<LegacyKineticNetwork.Position, Float> speeds = new HashMap<>();
+        private final Map<Edge, Float> modifiers = new HashMap<>();
+
+        void put(LegacyKineticNetwork.Position position, Float sourceSpeed) {
+            sources.put(position, sourceSpeed);
+            speeds.put(position, 0f);
+        }
+
+        void connect(LegacyKineticNetwork.Position from, LegacyKineticNetwork.Position to, float forward,
+            float backward) {
+            modifiers.put(new Edge(from, to), forward);
+            modifiers.put(new Edge(to, from), backward);
+        }
+
+        void remove(LegacyKineticNetwork.Position position) {
+            sources.remove(position);
+            speeds.remove(position);
+        }
+
+        float speed(LegacyKineticNetwork.Position position) {
+            return speeds.get(position);
+        }
+
+        @Override
+        public boolean isKinetic(LegacyKineticNetwork.Position position) {
+            return sources.containsKey(position);
+        }
+
+        @Override
+        public boolean connects(LegacyKineticNetwork.Position position, ForgeDirection direction) {
+            return false;
+        }
+
+        @Override
+        public Iterable<LegacyKineticNetwork.Position> neighbours(LegacyKineticNetwork.Position position) {
+            return modifiers.keySet().stream().filter(edge -> edge.from().equals(position)).map(Edge::to).toList();
+        }
+
+        @Override
+        public float speedModifier(LegacyKineticNetwork.Position position,
+            LegacyKineticNetwork.Position neighbour) {
+            return modifiers.getOrDefault(new Edge(position, neighbour), 0f);
+        }
+
+        @Override
+        public Float sourceSpeed(LegacyKineticNetwork.Position position) {
+            return sources.get(position);
+        }
+
+        @Override
+        public void setSpeed(LegacyKineticNetwork.Position position, float speed) {
+            speeds.put(position, speed);
         }
     }
 }

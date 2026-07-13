@@ -18,7 +18,8 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 public final class AllBlocks {
 
     public static final ShaftBlock SHAFT = new ShaftBlock();
-    public static final CogWheelBlock COGWHEEL = new CogWheelBlock();
+    public static final CogWheelBlock COGWHEEL = CogWheelBlock.small();
+    public static final CogWheelBlock LARGE_COGWHEEL = CogWheelBlock.large();
     public static final CreativeMotorBlock CREATIVE_MOTOR = new CreativeMotorBlock();
 
     private static boolean registered;
@@ -30,11 +31,17 @@ public final class AllBlocks {
         registered = true;
         GameRegistry.registerBlock(SHAFT, ShaftItemBlock.class, "shaft");
         GameRegistry.registerBlock(COGWHEEL, CogWheelItemBlock.class, "cogwheel");
+        GameRegistry.registerBlock(LARGE_COGWHEEL, CogWheelItemBlock.class, "large_cogwheel");
         GameRegistry.registerBlock(CREATIVE_MOTOR, CreativeMotorItemBlock.class, "creative_motor");
         SHAFT.setCreativeTab(AllCreativeModeTabs.BASE);
         COGWHEEL.setCreativeTab(AllCreativeModeTabs.BASE);
+        LARGE_COGWHEEL.setCreativeTab(AllCreativeModeTabs.BASE);
         CREATIVE_MOTOR.setCreativeTab(AllCreativeModeTabs.BASE);
         GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(COGWHEEL), new ItemStack(SHAFT), "plankWood"));
+        GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LARGE_COGWHEEL), new ItemStack(SHAFT),
+            "plankWood", "plankWood"));
+        GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LARGE_COGWHEEL), new ItemStack(COGWHEEL),
+            "plankWood"));
     }
 
     private AllBlocks() {}

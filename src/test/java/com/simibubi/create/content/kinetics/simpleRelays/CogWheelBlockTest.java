@@ -31,7 +31,7 @@ class CogWheelBlockTest {
 
     @Test
     void selectionIncludesBothTheGearBodyAndAxialShaft() {
-        AxisAlignedBB bounds = CogWheelBlock.createSelectionBounds(LegacyAxis.X, 0, 0, 0);
+        AxisAlignedBB bounds = CogWheelBlock.createSelectionBounds(LegacyAxis.X, false, 0, 0, 0);
 
         assertEquals(0, bounds.minX);
         assertEquals(1, bounds.maxX);
@@ -39,6 +39,19 @@ class CogWheelBlockTest {
         assertEquals(14.0 / 16, bounds.maxY);
         assertEquals(2.0 / 16, bounds.minZ);
         assertEquals(14.0 / 16, bounds.maxZ);
+    }
+
+    @Test
+    void largeCogwheelUsesTheUpstreamIdentityAndFullBlockGearShape() {
+        CogWheelBlock cogwheel = CogWheelBlock.large();
+        AxisAlignedBB bounds = CogWheelBlock.createSelectionBounds(LegacyAxis.X, true, 0, 0, 0);
+
+        assertEquals(true, cogwheel.isLargeCog());
+        assertEquals(false, cogwheel.isSmallCog());
+        assertEquals(0, bounds.minY);
+        assertEquals(1, bounds.maxY);
+        assertEquals(0, bounds.minZ);
+        assertEquals(1, bounds.maxZ);
     }
 
     @Test

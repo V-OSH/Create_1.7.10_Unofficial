@@ -22,6 +22,10 @@ public final class LegacyKineticNetwork {
         public Position offset(ForgeDirection direction) {
             return new Position(x + direction.offsetX, y + direction.offsetY, z + direction.offsetZ);
         }
+
+        public Position offset(int xOffset, int yOffset, int zOffset) {
+            return new Position(x + xOffset, y + yOffset, z + zOffset);
+        }
     }
 
     public interface NetworkView {
@@ -34,6 +38,26 @@ public final class LegacyKineticNetwork {
             return connects(position, direction) ? 1 : 0;
         }
 
+        default Iterable<Position> neighbours(Position position) {
+            List<Position> neighbours = new ArrayList<>();
+            for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
+                neighbours.add(position.offset(direction));
+            }
+            return neighbours;
+        }
+
+        default float speedModifier(Position position, Position neighbour) {
+            int xOffset = neighbour.x() - position.x();
+            int yOffset = neighbour.y() - position.y();
+            int zOffset = neighbour.z() - position.z();
+            for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
+                if (direction.offsetX == xOffset && direction.offsetY == yOffset && direction.offsetZ == zOffset) {
+                    return speedModifier(position, direction);
+                }
+            }
+            return 0;
+        }
+
         Float sourceSpeed(Position position);
 
         void setSpeed(Position position, float speed);
@@ -42,8 +66,8 @@ public final class LegacyKineticNetwork {
     public static void rebuildAt(NetworkView view, Position changedPosition) {
         Set<Position> visited = new HashSet<>();
         rebuildComponent(view, changedPosition, visited);
-        for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
-            rebuildComponent(view, changedPosition.offset(direction), visited);
+        for (Position neighbour : view.neighbours(changedPosition)) {
+            rebuildComponent(view, neighbour, visited);
         }
     }
 
@@ -77,13 +101,12 @@ public final class LegacyKineticNetwork {
                 }
             }
 
-            for (ForgeDirection direction : ForgeDirection.VALID_DIRECTIONS) {
-                Position neighbour = current.offset(direction);
+            for (Position neighbour : view.neighbours(current)) {
                 if (visited.contains(neighbour) || !view.isKinetic(neighbour)) {
                     continue;
                 }
-                float forwardModifier = view.speedModifier(current, direction);
-                float backwardModifier = view.speedModifier(neighbour, direction.getOpposite());
+                float forwardModifier = view.speedModifier(current, neighbour);
+                float backwardModifier = view.speedModifier(neighbour, current);
                 if (forwardModifier == 0 || backwardModifier == 0
                     || Math.abs(forwardModifier * backwardModifier - 1) > .0001f) {
                     continue;

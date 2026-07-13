@@ -22,12 +22,16 @@ public final class KineticRenderMath {
     }
 
     public static float cogwheelOffsetDegrees(LegacyAxis axis, int x, int y, int z) {
+        return cogwheelOffsetDegrees(axis, x, y, z, false);
+    }
+
+    public static float cogwheelOffsetDegrees(LegacyAxis axis, int x, int y, int z, boolean largeCogwheel) {
         int perpendicularSum = switch (axis) {
             case X -> y + z;
             case Y -> x + z;
             case Z -> x + y;
         };
-        return perpendicularSum % 2 == 0 ? 22.5f : 0;
+        return perpendicularSum % 2 == 0 ? 22.5f : largeCogwheel ? 11.25f : 0;
     }
 
     private static float wrapDegrees(float angle) {
